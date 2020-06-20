@@ -1,3 +1,6 @@
+import { app } from "electron"
+
+const userDataPath = app.getPath("userData")
 const isDevelopment = process.env.NODE_ENV !== "production"
 const platform = process.platform
 const isWindows = platform === "win32"
@@ -7,4 +10,5 @@ export default {
   isWindows,
   isMacintosh,
   isDevelopment,
+  userDataPath,
 }

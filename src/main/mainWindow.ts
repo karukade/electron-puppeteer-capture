@@ -10,6 +10,8 @@ export type MainWindowCallBacks = {
 }
 
 const browserWindowOptions: BrowserWindowConstructorOptions = {
+  width: 1180,
+  height: 700,
   webPreferences: {
     nodeIntegration: utils.isDevelopment ? true : false,
     // dist/main/preload.js
@@ -26,6 +28,8 @@ export const createMainWindow = (
   if (utils.isDevelopment) {
     window.webContents.openDevTools()
   }
+
+  window.webContents.openDevTools()
 
   if (utils.isDevelopment) {
     window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`)
