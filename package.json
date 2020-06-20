@@ -37,7 +37,9 @@
   "electronWebpack": {
     "commonSourceDirectory": "src/common",
     "main": {
-      "extraEntries": ["@/preload.ts"]
+      "extraEntries": [
+        "@/preload.ts"
+      ]
     },
     "renderer": {
       "template": "src/renderer/index.html",

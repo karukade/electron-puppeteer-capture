@@ -16,6 +16,8 @@
   - イベントとコールバックが一覧できるようにしたい。
   - コマンドを定数として定義（rendererからよみだせるようにしたい  ）
 
+- IPC制御用のクラスつくる
+
 ### 初期化
 - webContents.on("dom-ready")で初期化している
   - chromiumの解凍
@@ -52,4 +54,24 @@ process.on("unhandledRejection", (e) => {
     throw new Error(e);
   }
 });
+```
+
+# VSCODEのBrowserWindowの制御Class
+[https://github.com/microsoft/vscode/blob/01630824e85deec96d37ee99c4f8c86ee23aa016/src/vs/code/electron-main/window.ts](https://github.com/microsoft/vscode/blob/01630824e85deec96d37ee99c4f8c86ee23aa016/src/vs/code/electron-main/window.ts)
+
+# ウィンドウを違和感なく表示する
+
+1. `ready-to-show`イベントを使用する
+レンダラーがはじめてレンダリングが完了したときに`ready-to-show`イベントが発生する。
+
+```js
+let win = new BrowserWindow({ show: false })
+win.once('ready-to-show', () => {
+  win.show()
+})
+```
+
+2. アプリの背景に近い backgroundColor を使う
+```js
+let win = new BrowserWindow({ backgroundColor: '#2e2c29' })
 ```

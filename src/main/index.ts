@@ -45,6 +45,7 @@ app.on("ready", () => {
 
 // add react devtools
 if (utils.isDevelopment) {
+  console.log(utils.isDevelopment)
   app.whenReady().then(() => {
     installExtension(REACT_DEVELOPER_TOOLS)
       .then((name) => console.log(`Added Extension:  ${name}`))
