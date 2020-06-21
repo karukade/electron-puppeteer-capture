@@ -3,8 +3,10 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "dev:renderer": "NODE_ENV=dev webpack-dev-server --config ./config//webpack.renderer.config.js --color",
+    "dev:main": "NODE_ENV=dev webpack --config ./config/webpack.main.config.js --color",
+    "electron": "electron -r ts-node/register src/main/index.ts",
     "dev": "electron-webpack dev",
-    "compile": "electron-webpack",
     "dist": "yarn compile && electron-builder",
     "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null"
   },
@@ -23,27 +25,19 @@
     "electron": "^9.0.0",
     "electron-builder": "^22.4.1",
     "electron-devtools-installer": "^3.0.0",
-    "electron-webpack": "^2.8.2",
     "electron-webpack-ts": "^4.0.1",
     "eslint": "^7.0.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.3",
     "eslint-plugin-react": "^7.20.0",
     "eslint-plugin-react-hooks": "^4.0.2",
+    "html-webpack-plugin": "^4.3.0",
     "prettier": "^2.0.5",
+    "ts-loader": "^7.0.5",
+    "ts-node": "^8.10.2",
     "typescript": "^3.9.3",
-    "webpack": "~4.42.1"
-  },
-  "electronWebpack": {
-    "commonSourceDirectory": "src/common",
-    "main": {
-      "extraEntries": [
-        "@/preload.ts"
-      ]
-    },
-    "renderer": {
-      "template": "src/renderer/index.html",
-      "webpackConfig": "webpack.renderer.additions.js"
-    }
+    "webpack": "~4.42.1",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
   }
 }
