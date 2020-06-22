@@ -75,3 +75,52 @@ win.once('ready-to-show', () => {
 ```js
 let win = new BrowserWindow({ backgroundColor: '#2e2c29' })
 ```
+
+
+
+# 開発環境
+
+## development
+
+1. renderer processをwebpack-dev-serverでコンパイルlocalhostで起動する
+2. main の　BrowserWindowからはloadFromUrlでdevServerで起動したlocalhostを読み込む
+   - mainのindex.ts は開発時はwebpackでコンパイルせずts-node/registare で起動する
+     - `electron -r ts-node/register ./src/main/index.ts`
+
+
+
+```
+my-app/
+├── package.json
+├──config/
+  ├webpack.renderer.config.js
+  ├webpack.main.config.js
+├── src/
+│		├──renderer/
+│			├──index.ts
+│			├──index.html ## tempalate for HtmlWebpackPlugin
+│		├──main/
+│    	├──index.ts
+│
+tsconfig.json
+│ 
+## build output
+├── build/
+│   ├──renderer/
+│		│		├──index.js
+│		│		├──index.html
+│		├──main/
+│				├──index.js	
+│				├──preload.js	
+│
+├── resoruces/
+	├──mac/
+	├──windows/
+## distribution packges
+└── dist/
+    ├── mac/
+    │   └── my-app.app
+    └── my-app-0.1.0.dmg
+
+```
+
