@@ -13,9 +13,7 @@ const browserWindowOptions: BrowserWindowConstructorOptions = {
   width: 1180,
   height: 700,
   webPreferences: {
-    nodeIntegration: utils.isDevelopment ? true : false,
-    // dist/main/preload.js
-    preload: path.resolve(__dirname, "..", "..", "dist", "main", "preload.js"),
+    preload: path.resolve(__dirname, "./preload.js"),
   },
 }
 
@@ -32,11 +30,11 @@ export const createMainWindow = (
   window.webContents.openDevTools()
 
   if (utils.isDevelopment) {
-    window.loadURL(`http://localhost:8080`)
+    window.loadURL(`http://localhost:${process.env.WEBPACK_DEV_PORT}`)
   } else {
     window.loadURL(
       formatUrl({
-        pathname: path.join(__dirname, "index.html"),
+        pathname: path.resolve("../renderer/index.html"),
         protocol: "file",
         slashes: true,
       })
@@ -48,4 +46,34 @@ export const createMainWindow = (
   })
 
   return window
+}
+
+export default class MainWindow {
+  private window!: BrowserWindow | null
+
+  get win() {
+    return this.window
+  }
+
+  public createWindow() {
+    this.window = new BrowserWindow(browserWindowOptions)
+
+    if (utils.isDevelopment) {
+      this.window.webContents.openDevTools()
+    }
+
+    if (utils.isDevelopment) {
+      this.window.loadURL(`http://localhost:8081`)
+    } else {
+      this.window.loadURL(
+        formatUrl({
+          pathname: path.resolve(__dirname, "../renderer/index.html"),
+          protocol: "file",
+          slashes: true,
+        })
+      )
+    }
+
+    this.window.on("closed", () => (this.window = null))
+  }
 }

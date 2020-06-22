@@ -1,27 +1,20 @@
 "use strict"
 
-import { app, BrowserWindow } from "electron"
+import { app } from "electron"
 import installExtension, {
   REACT_DEVELOPER_TOOLS,
 } from "electron-devtools-installer"
 
-import { createMainWindow, MainWindowCallBacks } from "./mainWindow"
 import utils from "./utils"
+import MainWindow from "./MainWindow"
+
+const mainWindow = new MainWindow()
 
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
-let mainWindow!: BrowserWindow | null
 
 // function addIpcSubscriber() {
 //   ipcMain.handle("test", async (event, data: string) => {})
 // }
-
-const onWindowClose = () => {
-  mainWindow = null
-}
-
-const mainWindowEventHandlers: MainWindowCallBacks = {
-  onClose: onWindowClose,
-}
 
 // quit application when all windows are closed
 app.on("window-all-closed", () => {
@@ -33,15 +26,13 @@ app.on("window-all-closed", () => {
 
 app.on("activate", () => {
   // on macOS it is common to re-create a window even after all windows have been closed
-  // if (mainWindow === null) {
-  //   mainWindow = createMainWindow(BrowserWindow, mainWindowEventHandlers)
-  // }
+  if (mainWindow.win === null) {
+    mainWindow.createWindow()
+  }
 })
 
 // create main BrowserWindow when electron is ready
-app.on("ready", () => {
-  mainWindow = createMainWindow(BrowserWindow, mainWindowEventHandlers)
-})
+app.on("ready", () => mainWindow.createWindow())
 
 // add react devtools
 if (utils.isDevelopment) {

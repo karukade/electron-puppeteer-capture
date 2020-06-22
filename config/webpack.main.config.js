@@ -1,30 +1,20 @@
 const path = require("path")
-const mode = process.env.NODE_ENV === "dev" ? "development" : "production"
+const merge = require("webpack-merge")
 
-module.exports = {
-  mode,
+const baseConfig = require("./webpack.base.config")
+const projectRoot = path.resolve(__dirname, "..")
+
+module.exports = merge.smart(baseConfig, {
   target: "electron-main",
   entry: {
-    index: path.join(__dirname, "..", "src/main", "index"),
-    preload: path.join(__dirname, "..", "src/main", "preload")
+    index: path.join(projectRoot, "src/main", "index.ts"),
+    preload: path.join(projectRoot, "src/main", "preload.ts")
   },
   output: {
-    path: path.resolve(__dirname, ".." , "dist/main"),
+    path: path.join(projectRoot , "app/main"),
   },
   node: {
     __dirname: false,
     __filename: false,
-  },
-  module: {
-    rules: [
-      {
-        test: /.ts$/,
-        exclude: [path.resolve(__dirname, "node_modules")],
-        loader: "ts-loader",
-      },
-    ],
-  },
-  resolve: {
-    extensions: [".js", ".ts"],
-  },
-}
+  }
+})
