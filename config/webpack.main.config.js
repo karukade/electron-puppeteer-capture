@@ -8,13 +8,14 @@ module.exports = merge.smart(baseConfig, {
   target: "electron-main",
   entry: {
     index: path.join(projectRoot, "src/main", "index.ts"),
-    preload: path.join(projectRoot, "src/main", "preload.ts")
+    preload: path.join(projectRoot, "src/main", "preload.ts"),
   },
+  devtool: process.env.NODE_ENV === "dev" ? "inline-source-map" : false,
   output: {
-    path: path.join(projectRoot , "app/main"),
+    path: path.join(projectRoot, "app/main"),
   },
   node: {
     __dirname: false,
     __filename: false,
-  }
+  },
 })

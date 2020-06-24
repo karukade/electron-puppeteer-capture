@@ -1,20 +1,11 @@
 "use strict"
 
 import { app } from "electron"
-import installExtension, {
-  REACT_DEVELOPER_TOOLS,
-} from "electron-devtools-installer"
 
 import utils from "./utils"
 import MainWindow from "./MainWindow"
 
 const mainWindow = new MainWindow()
-
-// global reference to mainWindow (necessary to prevent window from being garbage collected)
-
-// function addIpcSubscriber() {
-//   ipcMain.handle("test", async (event, data: string) => {})
-// }
 
 // quit application when all windows are closed
 app.on("window-all-closed", () => {
@@ -31,14 +22,18 @@ app.on("activate", () => {
   }
 })
 
-// create main BrowserWindow when electron is ready
-app.on("ready", () => mainWindow.createWindow())
+const installExtensions = async () => {
+  const installer = require("electron-devtools-installer")
+  const forceDownload = !!process.env.UPGRADE_EXTENSIONS
+  const extensions = ["REACT_DEVELOPER_TOOLS", "REDUX_DEVTOOLS"]
 
-// add react devtools
-if (utils.isDevelopment) {
-  app.whenReady().then(() => {
-    installExtension(REACT_DEVELOPER_TOOLS)
-      .then((name) => console.log(`Added Extension:  ${name}`))
-      .catch((err) => console.log("An error occurred: ", err))
-  })
+  return Promise.all(
+    extensions.map((name) => installer.default(installer[name], forceDownload))
+  ).catch(console.log)
 }
+
+// create main BrowserWindow when electron is ready
+app.on("ready", async () => {
+  if (utils.isDevelopment) await installExtensions()
+  mainWindow.createWindow()
+})

@@ -1,6 +1,8 @@
 import React, { useState } from "react"
 import TodoTxt from "./TodoTxt"
 
+import { actions } from "../common/actions"
+
 const ipcRenderer = window.ipcRenderer
 
 const Todo: React.FC = () => {
@@ -12,7 +14,7 @@ const Todo: React.FC = () => {
   }
   const onClick = async () => {
     console.log(input)
-    const data = await ipcRenderer.invoke("test", input)
+    const data = await ipcRenderer.invoke(actions.GET_INIT_DATA)
     console.log(data)
   }
   ipcRenderer.on("load-txt", (event, data) => {

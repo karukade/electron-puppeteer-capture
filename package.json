@@ -3,11 +3,13 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "dev": "cross-env NODE_ENV=dev webpack-dev-server --config ./config//webpack.renderer.config.js --color",
+    "dev:renderer": "cross-env NODE_ENV=dev webpack-dev-server --config ./config//webpack.renderer.config.js --color",
+    "dev:main": "cross-env NODE_ENV=dev webpack --config ./config/webpack.main.config.js --color",
+    "dev:electron": "electron ./app/main/index.js",
+    "start": "yarn dev:main && yarn dev:renderer",
     "build:main": "cross-env NODE_ENV=production webpack --config ./config/webpack.main.config.js --color",
     "build:renderer": "cross-env NODE_ENV=production webpack --config ./config/webpack.renderer.config.js --color --display-modules",
     "build": "yarn build:main && yarn build:renderer",
-    "electron": "electron -r ts-node/register src/main/index.ts",
     "dist": "yarn compile && electron-builder",
     "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null"
   },

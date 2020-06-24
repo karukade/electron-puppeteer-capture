@@ -17,37 +17,6 @@ const browserWindowOptions: BrowserWindowConstructorOptions = {
   },
 }
 
-export const createMainWindow = (
-  BrowserWindow: BrowserWindowType,
-  callBacks?: MainWindowCallBacks
-) => {
-  const window = new BrowserWindow(browserWindowOptions)
-
-  if (utils.isDevelopment) {
-    window.webContents.openDevTools()
-  }
-
-  window.webContents.openDevTools()
-
-  if (utils.isDevelopment) {
-    window.loadURL(`http://localhost:${process.env.WEBPACK_DEV_PORT}`)
-  } else {
-    window.loadURL(
-      formatUrl({
-        pathname: path.resolve("../renderer/index.html"),
-        protocol: "file",
-        slashes: true,
-      })
-    )
-  }
-
-  window.on("closed", () => {
-    callBacks?.onClose()
-  })
-
-  return window
-}
-
 export default class MainWindow {
   private window!: BrowserWindow | null
 
@@ -63,7 +32,7 @@ export default class MainWindow {
     }
 
     if (utils.isDevelopment) {
-      this.window.loadURL(`http://localhost:8081`)
+      this.window.loadURL(`http://localhost:${process.env.DEV_SERVER_PORT}`)
     } else {
       this.window.loadURL(
         formatUrl({
