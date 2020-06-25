@@ -20,12 +20,14 @@
     "puppeteer": "^4.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "source-map-support": "^0.5.16"
+    "source-map-support": "^0.5.16",
+    "unzipper": "^0.10.11"
   },
   "devDependencies": {
     "@babel/preset-react": "^7.9.4",
     "@types/react": "^16.9.35",
     "@types/react-dom": "^16.9.8",
+    "@types/unzipper": "^0.10.3",
     "@typescript-eslint/eslint-plugin": "^2.34.0",
     "@typescript-eslint/parser": "^2.34.0",
     "archiver": "^4.0.1",

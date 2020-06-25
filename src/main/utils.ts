@@ -1,4 +1,4 @@
-import fs from "fs"
+import fs, { promises } from "fs"
 import path from "path"
 import { app } from "electron"
 
@@ -31,3 +31,4 @@ export const isMacintosh = platform === "darwin"
 export const userDataPath = isDevelopment
   ? path.resolve(__dirname, "../temp-user-data")
   : app.getPath("userData")
+export const chromiumPath = path.join(userDataPath, "chromium")
