@@ -6,7 +6,7 @@ const merge = require("webpack-merge")
 const baseConfig = require("./webpack.base.config")
 
 const projectRoot = path.resolve(__dirname, "..")
-const DEV_SERVER_PORT = 8080
+const DEV_SERVER_PORT = 8081
 
 module.exports = merge.smart(baseConfig, {
   target: "web",

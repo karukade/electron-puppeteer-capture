@@ -2,9 +2,11 @@ import fs from "fs"
 import path from "path"
 import { app } from "electron"
 
-const fsPromises = fs.promises
+const platform = process.platform
 
-const hasDirOrFile = async (dirOrFilePath: string) => {
+export const fsPromises = fs.promises
+
+export const hasDirOrFile = async (dirOrFilePath: string) => {
   try {
     await fsPromises.access(dirOrFilePath, fs.constants.F_OK)
     return true
@@ -12,30 +14,20 @@ const hasDirOrFile = async (dirOrFilePath: string) => {
     return false
   }
 }
-const createFile = async (
-  dirOrFilePath: string,
+export const createFile = async (
+  filePath: string,
   data: string | Buffer
 ): Promise<any> => {
-  if (!(await hasDirOrFile(dirOrFilePath))) {
-    const filePath = path.dirname(dirOrFilePath)
-    await fsPromises.mkdir(filePath, { recursive: true })
+  if (!(await hasDirOrFile(filePath))) {
+    const fileDir = path.dirname(filePath)
+    await fsPromises.mkdir(fileDir, { recursive: true })
   }
-  return fsPromises.writeFile(dirOrFilePath, data)
+  return fsPromises.writeFile(filePath, data)
 }
 
-const isDevelopment = process.env.NODE_ENV !== "production"
-const platform = process.platform
-const isWindows = platform === "win32"
-const isMacintosh = platform === "darwin"
-const userDataPath = isDevelopment
-  ? path.resolve(__dirname, "../devUserData")
+export const isDevelopment = process.env.NODE_ENV !== "production"
+export const isWindows = platform === "win32"
+export const isMacintosh = platform === "darwin"
+export const userDataPath = isDevelopment
+  ? path.resolve(__dirname, "../temp-user-data")
   : app.getPath("userData")
-
-export default {
-  isWindows,
-  isMacintosh,
-  isDevelopment,
-  userDataPath,
-  hasDirOrFile,
-  createFile,
-}

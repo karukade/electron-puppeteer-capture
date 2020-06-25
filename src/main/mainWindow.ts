@@ -1,8 +1,8 @@
 import { BrowserWindow, BrowserWindowConstructorOptions } from "electron"
-import * as path from "path"
+import path from "path"
 import { format as formatUrl } from "url"
 
-import utils from "./utils"
+import * as utils from "./utils"
 
 type BrowserWindowType = typeof BrowserWindow
 export type MainWindowCallBacks = {
@@ -10,6 +10,7 @@ export type MainWindowCallBacks = {
 }
 
 const browserWindowOptions: BrowserWindowConstructorOptions = {
+  show: false,
   width: 1180,
   height: 700,
   webPreferences: {
@@ -27,14 +28,23 @@ export default class MainWindow {
   public createWindow() {
     this.window = new BrowserWindow(browserWindowOptions)
 
-    if (utils.isDevelopment) {
-      this.window.webContents.openDevTools()
-    }
+    this.loadUrl()
 
+    this.window.once("ready-to-show", () => {
+      this.window?.show()
+      if (utils.isDevelopment) {
+        this.window?.webContents.openDevTools()
+      }
+    })
+
+    this.window.on("closed", () => (this.window = null))
+  }
+
+  private loadUrl() {
     if (utils.isDevelopment) {
-      this.window.loadURL(`http://localhost:${process.env.DEV_SERVER_PORT}`)
+      this.window?.loadURL(`http://localhost:${process.env.DEV_SERVER_PORT}`)
     } else {
-      this.window.loadURL(
+      this.window?.loadURL(
         formatUrl({
           pathname: path.resolve(__dirname, "../renderer/index.html"),
           protocol: "file",
@@ -42,7 +52,5 @@ export default class MainWindow {
         })
       )
     }
-
-    this.window.on("closed", () => (this.window = null))
   }
 }

@@ -1,5 +1,5 @@
 import "electron"
-import { handlers } from "./src/main/handlers/"
+import { handlers } from "./src/main/IpcHandler"
 
 declare module "electron" {
   interface IpcRenderer {
