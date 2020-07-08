@@ -12,7 +12,7 @@ type LogicInfo = LogicsValue & {
 
 export default class Logics {
   private logics!: Map<string, LogicsValue> | null
-  readonly srcPath: string = path.join(utils.userDataPath, "logics.json")
+  readonly srcPath: string = path.join(utils.userDataDir, "logics.json")
 
   async init() {
     if (!(await utils.hasDirOrFile(this.srcPath))) {

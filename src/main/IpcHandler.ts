@@ -1,5 +1,5 @@
 import { ipcMain } from "electron"
-import { actions } from "../common/actions"
+import { actions } from "../shared/actions"
 
 import Logics from "./services/Logics"
 
@@ -9,7 +9,7 @@ const services = {
 
 export const handlers = {
   [actions.GET_INIT_DATA]: async () => {
-    const logics = await services.logic.init()
+    // const logics = await services.logic.init()
     return "INIT_DATA"
   },
 

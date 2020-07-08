@@ -10,12 +10,17 @@ module.exports = merge.smart(baseConfig, {
     index: path.join(projectRoot, "src/main", "index.ts"),
     preload: path.join(projectRoot, "src/main", "preload.ts"),
   },
-  devtool: process.env.NODE_ENV === "dev" ? "inline-source-map" : false,
+  devtool: process.env.NODE_ENV === "development" ? "inline-source-map" : false,
   output: {
     path: path.join(projectRoot, "app/main"),
   },
   node: {
     __dirname: false,
     __filename: false,
+  },
+  externals: {
+    // puppeteer peer dependencies
+    "utf-8-validate": "utf-8-validate",
+    bufferutil: "bufferutil",
   },
 })

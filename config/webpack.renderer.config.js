@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin")
 
 const merge = require("webpack-merge")
 const baseConfig = require("./webpack.base.config")
+const log = require("./log")
 
 const projectRoot = path.resolve(__dirname, "..")
 const DEV_SERVER_PORT = 8081
@@ -15,7 +16,7 @@ module.exports = merge.smart(baseConfig, {
     filename: "index.js",
     path: path.join(projectRoot, "app/renderer"),
   },
-  devtool: process.env.NODE_ENV === "dev" ? "inline-source-map" : false,
+  devtool: process.env.NODE_ENV === "development" ? "inline-source-map" : false,
   devServer: {
     port: DEV_SERVER_PORT,
     compress: true,
@@ -28,13 +29,18 @@ module.exports = merge.smart(baseConfig, {
     },
     before() {
       console.log("Starting Main Process...")
-      spawn("npm", ["run", "dev:electron"], {
+      spawn("yarn", ["dev:electron"], {
         shell: true,
         stdio: "inherit",
         env: Object.assign({ DEV_SERVER_PORT }, process.env),
       })
         .on("close", (code) => process.exit(code))
-        .on("error", (spawnError) => console.error(spawnError))
+        .on("error", (spawnError) => {
+          log(spawnError)
+        })
+        .on("data", (data) => {
+          log(data)
+        })
     },
   },
   plugins: [
@@ -42,4 +48,10 @@ module.exports = merge.smart(baseConfig, {
       template: path.join(projectRoot, "src/renderer/index.html"),
     }),
   ],
+  externals: {
+    electron: "electron",
+  },
+  optimization: {
+    usedExports: true,
+  },
 })

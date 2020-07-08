@@ -1,3 +1,4 @@
+import { EventEmitter } from "events"
 import { BrowserWindow, BrowserWindowConstructorOptions } from "electron"
 import path from "path"
 import { format as formatUrl } from "url"
@@ -18,7 +19,7 @@ const browserWindowOptions: BrowserWindowConstructorOptions = {
   },
 }
 
-export default class MainWindow {
+export default class MainWindow extends EventEmitter {
   private window!: BrowserWindow | null
 
   get win() {
@@ -32,6 +33,7 @@ export default class MainWindow {
 
     this.window.once("ready-to-show", () => {
       this.window?.show()
+      this.emit("ready-to-show")
       if (utils.isDevelopment) {
         this.window?.webContents.openDevTools()
       }

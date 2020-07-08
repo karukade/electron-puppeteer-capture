@@ -1,7 +1,10 @@
+const path = require("path")
 const fs = require("fs")
 const fsPromises = fs.promises
 const archiver = require("archiver")
 const cliProgress = require("cli-progress")
+
+const isMac = process.platform === "darwin"
 
 const hasDirOrFile = async (dirOrFilePath) => {
   try {
@@ -19,6 +22,13 @@ const archiveDir = async (src, dist) => {
     resolve = _resolve
     reject = _reject
   })
+
+  if (await hasDirOrFile(dist)) {
+    console.log(`already archived at ${dist}`)
+    return
+  }
+
+  await fsPromises.mkdir(path.dirname(dist), { recursive: true })
   const out = fs.createWriteStream(dist)
   const archive = archiver("zip", {
     zlib: { level: 9 },
@@ -41,7 +51,7 @@ const archiveDir = async (src, dist) => {
   })
 
   archive.pipe(out)
-  archive.directory(src, false)
+  archive.directory(src, path.basename(src))
   archive.finalize()
 
   return promise
@@ -66,4 +76,5 @@ module.exports = {
   hasDirOrFile,
   archiveDir,
   ProgressBar,
+  isMac,
 }

@@ -1,22 +1,25 @@
 const path = require("path")
 const puppeteer = require("puppeteer")
+const { PUPPETEER_REVISIONS } = require("puppeteer/lib/cjs/revisions")
+const { archiveDir, ProgressBar } = require("./utils")
 
-const {
-  // eslint-disable-next-line @typescript-eslint/camelcase
-  puppeteer: { chromium_revision },
-} = require("../node_modules/puppeteer/package.json")
+//対応するplatform
+const supportedPlatforms = ["win64", "mac"]
 
-const { hasDirOrFile, archiveDir, ProgressBar } = require("./utils")
-const dist = path.resolve(__dirname, "../app/chromium.zip")
+// localのダウンロード先
+const downloadPath = path.resolve(__dirname, "../chromium")
 
-const main = async () => {
-  if (process.env.SPEARS_CHECK_CHROMIUM && (await hasDirOrFile(dist))) return
+const download = async (platform) => {
   let progressBar
-  const browserFetcher = puppeteer.createBrowserFetcher()
+  const browserFetcher = puppeteer.createBrowserFetcher({
+    platform,
+    path: downloadPath,
+  })
 
   console.log("downloading chromium")
+
   const revisionInfo = await browserFetcher.download(
-    chromium_revision,
+    PUPPETEER_REVISIONS.chromium,
     (downloadedBytes, totalBytes) => {
       if (!progressBar) {
         progressBar = new ProgressBar(totalBytes, 0)
@@ -25,16 +28,31 @@ const main = async () => {
       progressBar.update(downloadedBytes)
     }
   )
-  const chromePath = path.dirname(revisionInfo.executablePath)
+
+  const chromePath = revisionInfo.folderPath
 
   console.log("downloaded chromium", chromePath)
+  console.log("revision info", revisionInfo)
 
+  const dist = path.resolve(
+    __dirname,
+    `../app/chromium/${platform}`,
+    `${path.basename(revisionInfo.folderPath)}.zip`
+  )
+
+  // zipに固めてappディレクトリに配置
   console.log(`archiving to ${dist}. please wait...`)
 
   await archiveDir(chromePath, dist)
 
-  console.log(`archived ${dist}`)
+  console.log(`archived at ${dist}`)
+}
+
+const main = async (platforms) => {
+  for (const platform of platforms) {
+    await download(platform)
+  }
   process.exit(0)
 }
 
-main()
+main(supportedPlatforms)

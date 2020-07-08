@@ -1,28 +1,19 @@
-import React, { useState, useCallback } from "react"
+import React from "react"
+import { Provider } from "react-redux"
 import { render } from "react-dom"
-import Todo from "./Todo"
-import Counter from "./counter"
+import { getInitialStateRenderer } from "electron-redux"
 
-let incFunc: any
+import App from "./App"
+import configureStore from "../shared/store/configureStore.renderer"
 
-const App: React.FC = () => {
-  const [int, setInt] = useState(0)
-  const increment = useCallback(() => {
-    setInt((prev) => {
-      return prev + 1
-    })
-  }, [])
-  if (incFunc !== increment) {
-    incFunc = increment
-    console.log("関数が生成された")
-  }
-  return (
-    <div>
-      <Todo />
-      {int}
-      <Counter onClick={increment} />
-    </div>
+const { ipcRenderer } = window
+
+getInitialStateRenderer(ipcRenderer).then((initialState) => {
+  const store = configureStore(ipcRenderer, initialState)
+  render(
+    <Provider store={store}>
+      <App />
+    </Provider>,
+    document.getElementById("app")
   )
-}
-
-render(<App />, document.getElementById("app"))
+})

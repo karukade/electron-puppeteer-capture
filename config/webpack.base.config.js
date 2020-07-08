@@ -1,5 +1,6 @@
 const path = require("path")
-const mode = process.env.NODE_ENV === "dev" ? "development" : "production"
+const mode =
+  process.env.NODE_ENV === "development" ? "development" : "production"
 
 module.exports = {
   mode,
