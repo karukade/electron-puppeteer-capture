@@ -4,7 +4,7 @@ import {
   getArchivePath,
   extractChromium,
   getChromiumExecutablePath,
-} from "../puppeteerHandler"
+} from "../services/puppeteerHandler"
 import puppeteer from "puppeteer"
 
 const launchPuppeteer = async (executablePath: string) => {

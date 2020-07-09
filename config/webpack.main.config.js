@@ -23,4 +23,8 @@ module.exports = merge.smart(baseConfig, {
     "utf-8-validate": "utf-8-validate",
     bufferutil: "bufferutil",
   },
+  stats: {
+    // Ignore warnings due to yarg's dynamic module loading
+    warningsFilter: [/node_modules\/yargs/],
+  },
 })

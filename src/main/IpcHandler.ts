@@ -1,28 +1,40 @@
 import { ipcMain } from "electron"
-import { actions } from "../shared/actions"
+import { channels, ChannelsType } from "../shared/channels"
+import { Store } from "redux"
 
-import Logics from "./services/Logics"
+import { getInitializeData } from "./services/appInitializer"
 
-const services = {
-  logic: new Logics(),
+import {
+  setChromiumExecutablePath,
+  setChromiumInitialized,
+} from "../shared/actions/chromium"
+import { setLogics } from "../shared/actions/logics"
+
+type Handlers = {
+  [K in ChannelsType]: (args?: any) => any
 }
 
+let store: Store
+
 export const handlers = {
-  [actions.GET_INIT_DATA]: async () => {
-    // const logics = await services.logic.init()
-    return "INIT_DATA"
+  [channels.REQ_INIT_DATA]: async () => {
+    const { chromiumExecutablePath, logics } = await getInitializeData()
+    store.dispatch(setChromiumInitialized(true))
+    store.dispatch(setChromiumExecutablePath(chromiumExecutablePath))
+    store.dispatch(setLogics(logics))
   },
 
-  [actions.READ_URL_LIST]: () => {
+  [channels.READ_URL_LIST]: () => {
     return "READ_URL_LIST"
   },
 
-  [actions.START_CAPTURE]: () => {
+  [channels.START_CAPTURE]: () => {
     return "START_CAPTURE"
   },
 }
 
-export const addIpcHandlers = () => {
+export const addIpcHandlers = (appStore: Store) => {
+  if (!store) store = appStore
   Object.entries(handlers).forEach(([key, handler]) => {
     ipcMain.handle(key, handler)
   })

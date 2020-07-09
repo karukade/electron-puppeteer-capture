@@ -1,10 +1,11 @@
-// import path from "path"
-// import * as ExcelJS from "exceljs"
+import path from "path"
+import ExcelJS from "exceljs"
+
+import { errCodes } from "../errHandler"
 // import { promisify } from "util"
 // import { imageSize } from "image-size"
 
 // const so = promisify(imageSize)
-// const workBook = new ExcelJS.Workbook()
 // const img = "data/capture.png"
 
 // const addImage = (workBook: ExcelJS.Workbook, filename: string): number => {
@@ -14,30 +15,35 @@
 //   })
 // }
 
-// const readExcel = async (src: string, sheetId: number) => {
-//   await workBook.xlsx.readFile(src)
-//   const workSheet = workBook.getWorksheet(sheetId)
-//   let header!: string[]
-//   const result: { [key: string]: any }[] = []
-//   workSheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
-//     if (!Array.isArray(row.values)) throw Error("Invalid Excel Value")
-//     const newVal = row.values.filter(
-//       (item) => item === 0 || item === "" || item
-//     )
-//     if (!header) {
-//       if (!newVal.every((value) => typeof value === "string"))
-//         throw Error("Invalid Excel Header")
-//       header = newVal as string[]
-//       return
-//     }
-//     const resObj = newVal.reduce((acc, curr, i) => {
-//       acc[header[i]] = typeof curr === "string" ? curr : (curr as any)?.text
-//       return acc
-//     }, {} as { [k: string]: ExcelJS.CellValue })
-//     result.push(resObj)
-//   })
-//   console.log(result)
-// }
+export const readExcel = async (src: string, sheetId = 1) => {
+  const workBook = new ExcelJS.Workbook()
+  await workBook.xlsx.readFile(src)
+  const workSheet = workBook.getWorksheet(sheetId)
+  let header!: string[]
+  const result: { [key: string]: any }[] = []
+
+  workSheet.eachRow({ includeEmpty: false }, (row) => {
+    if (!Array.isArray(row.values)) throw new Error(errCodes.INVALID_EXCEL)
+
+    const filtered = row.values.filter((value) => typeof value === "string")
+
+    if (filtered.length === 0) throw new Error(errCodes.INVALID_EXCEL)
+
+    if (!header) {
+      header = filtered as string[]
+      return
+    }
+
+    const formatted = filtered.reduce((acc, curr, i) => {
+      acc[header[i]] = typeof curr === "string" ? curr : (curr as any)?.text
+      return acc
+    }, {} as { [k: string]: ExcelJS.CellValue })
+
+    result.push(formatted)
+  })
+
+  return result
+}
 
 // ;(async () => {
 //   // const {width, height} = await so(img) as {width: number, height: number}

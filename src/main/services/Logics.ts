@@ -1,5 +1,6 @@
 import path from "path"
 import * as utils from "../utils"
+import { errCodes } from "../errHandler"
 
 type LogicsValue = {
   value: string
@@ -10,80 +11,68 @@ type LogicInfo = LogicsValue & {
   name: string
 }
 
-export default class Logics {
-  private logics!: Map<string, LogicsValue> | null
-  readonly srcPath: string = path.join(utils.userDataDir, "logics.json")
+const logicFilePath = path.join(utils.userDataDir, "logics.json")
 
-  async init() {
-    if (!(await utils.hasDirOrFile(this.srcPath))) {
-      this.logics = null
-      return this.logics
-    }
-    const logics = await utils.fsPromises.readFile(this.srcPath, {
-      encoding: "utf-8",
-    })
-    this.logics = new Map(JSON.parse(logics))
-    return this.logics
-  }
+export type LogicsType = Map<string, LogicsValue>
 
-  async setLogic({ name, ...rest }: LogicInfo) {
-    if (!this.isValid({ name, ...rest })) return
-    if (!this.logics) {
-      this.logics = new Map()
-    }
-    this.logics.set(name, rest)
-    await this.writeLogicFile()
-  }
+export const isValidLogic = (info: LogicInfo) => {
+  return info.name !== "" && info.value !== ""
+}
 
-  async updateLogic({ name, ...rest }: LogicInfo, lastLogicName: string) {
-    //ロジック名に変更がなければそのまま上書き
-    if (this.logics?.has(name)) {
-      this.logics?.set(name, rest)
-    } else {
-      //ロジック名が変更されていたら同じlastLogicNameの位置にセットする
-      const logics = new Map()
-      this.logics?.forEach((info, _name) => {
-        if (_name === lastLogicName) {
-          logics.set(name, rest)
-        } else {
-          logics.set(_name, info)
-        }
-      })
-      this.logics = logics
-    }
-    await this.writeLogicFile()
-  }
+export const mergeNewLogic = (
+  { name, ...rest }: LogicInfo,
+  logics: LogicsType
+) => {
+  if (isValidLogic({ name, ...rest })) return null
+  return new Map(logics).set(name, rest)
+}
 
-  async importLogic(importedFilePath: string) {
-    const data = await utils.fsPromises.readFile(importedFilePath, {
-      encoding: "utf-8",
-    })
-    try {
-      const parsed = JSON.parse(data)
-      this.logics = new Map(parsed)
-      return this.logics
-    } catch (e) {
-      // SyntaxError = JSON.parse Err / TypeError = Map Err
-      if (e.name === "SyntaxError" || e.name === "TypeError") {
-        return Promise.reject(e.name)
+export const readLogicsFromFile = async () => {
+  if (!(await utils.hasDirOrFile(logicFilePath))) return null
+  const logics = await utils.fsPromises.readFile(logicFilePath, {
+    encoding: "utf-8",
+  })
+  return new Map(JSON.parse(logics)) as LogicsType
+}
+
+export const writeLogicFile = async (logics: LogicsType) => {
+  await utils.fsPromises.writeFile(logicFilePath, JSON.stringify([...logics]))
+}
+
+export const updateLogic = async (
+  { name, ...rest }: LogicInfo,
+  lastLogicName: string,
+  logics: LogicsType
+) => {
+  //ロジック名に変更がなければそのまま上書き
+  if (logics.has(name)) {
+    return new Map(logics).set(name, rest)
+  } else {
+    //ロジック名が変更されていたら同じlastLogicNameの位置にセットする
+    const newLogics = new Map()
+    logics.forEach((info, _name) => {
+      if (_name === lastLogicName) {
+        newLogics.set(name, rest)
+      } else {
+        newLogics.set(_name, info)
       }
-      throw e
+    })
+    return newLogics
+  }
+}
+
+export const importLogic = async (importedFilePath: string) => {
+  const data = await utils.fsPromises.readFile(importedFilePath, {
+    encoding: "utf-8",
+  })
+  try {
+    const parsed = JSON.parse(data)
+    return new Map(parsed)
+  } catch (e) {
+    // SyntaxError = JSON.parse Err / TypeError = Map Err
+    if (e.name === "SyntaxError" || e.name === "TypeError") {
+      throw new Error(errCodes.INVALID_LOGIC_FILE)
     }
-  }
-
-  private isValid(info: LogicInfo) {
-    return info.name !== "" && info.value !== ""
-  }
-
-  private async writeLogicFile() {
-    if (!this.logics) return
-    await utils.fsPromises.writeFile(
-      this.srcPath,
-      JSON.stringify([...this.logics])
-    )
-  }
-
-  get getLogics() {
-    return this.logics
+    throw e
   }
 }

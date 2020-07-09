@@ -5,7 +5,6 @@ import { format as formatUrl } from "url"
 
 import * as utils from "./utils"
 
-type BrowserWindowType = typeof BrowserWindow
 export type MainWindowCallBacks = {
   onClose: () => void
 }

@@ -3,7 +3,8 @@ import puppeteer from "puppeteer"
 import { app } from "electron"
 import extract from "extract-zip"
 
-import * as utils from "./utils"
+import * as utils from "../utils"
+import { errCodes } from "../errHandler"
 
 const defDownloadPath = app.getPath("desktop")
 
@@ -56,7 +57,7 @@ export const getChromiumExecutablePath = async () => {
       : process.platform === "win32"
       ? "win64"
       : null
-  if (!platform) return
+  if (!platform) throw new Error(errCodes.UNSUPPORTED_PLATFORM)
   const browserFetcher = puppeteer.createBrowserFetcher({
     path: utils.userDataDir,
     platform,
