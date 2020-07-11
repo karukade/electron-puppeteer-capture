@@ -15,12 +15,24 @@ import { errCodes } from "../errHandler"
 //   })
 // }
 
+const expectedHeader = ["url", "pc", "sp", "tablet", "pdf", "logic"] as const
+
+type HeadersType = typeof expectedHeader[number]
+export type UrlListType = { [K in HeadersType]: string }[]
+
+const isValidHeader = (headers: any[]) => {
+  return headers.every(
+    (header, i) =>
+      typeof header === "string" && expectedHeader[i] === header.toLowerCase()
+  )
+}
+
 export const readExcel = async (src: string, sheetId = 1) => {
   const workBook = new ExcelJS.Workbook()
   await workBook.xlsx.readFile(src)
   const workSheet = workBook.getWorksheet(sheetId)
-  let header!: string[]
-  const result: { [key: string]: any }[] = []
+  let header!: typeof expectedHeader
+  const result: UrlListType = []
 
   workSheet.eachRow({ includeEmpty: false }, (row) => {
     if (!Array.isArray(row.values)) throw new Error(errCodes.INVALID_EXCEL)
@@ -30,14 +42,15 @@ export const readExcel = async (src: string, sheetId = 1) => {
     if (filtered.length === 0) throw new Error(errCodes.INVALID_EXCEL)
 
     if (!header) {
-      header = filtered as string[]
+      if (!isValidHeader(filtered)) throw new Error(errCodes.INVALID_EXCEL)
+      header = filtered.map((header) => (header as string).toLowerCase()) as any
       return
     }
 
     const formatted = filtered.reduce((acc, curr, i) => {
       acc[header[i]] = typeof curr === "string" ? curr : (curr as any)?.text
       return acc
-    }, {} as { [k: string]: ExcelJS.CellValue })
+    }, {} as { [K in HeadersType]: string })
 
     result.push(formatted)
   })
