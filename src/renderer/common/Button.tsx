@@ -5,7 +5,7 @@ type BtnTypes = "primary" | "secondary"
 
 type PropsType = {
   onClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void
-  type: BtnTypes
+  type?: BtnTypes
 }
 
 const StyledBtn = styled.button`
@@ -17,7 +17,11 @@ const StyledBtn = styled.button`
   min-width: 300px;
 `
 
-const Button: React.FC<PropsType> = ({ children, onClick, type }) => {
+const Button: React.FC<PropsType> = ({
+  children,
+  onClick,
+  type = "primary",
+}) => {
   return <StyledBtn onClick={onClick}>{children}</StyledBtn>
 }
 

@@ -1,32 +1,14 @@
 import path from "path"
 import puppeteer from "puppeteer"
-import { app } from "electron"
 import extract from "extract-zip"
 
 import * as utils from "../utils"
 import { errCodes } from "../errHandler"
 
-const defDownloadPath = app.getPath("desktop")
-
-export default async (executablePath: string) => {
-  const browser = await puppeteer.launch({
-    executablePath,
-    headless: false,
-  })
-  const page = await browser.newPage()
-  await page.goto("https://google.com", { waitUntil: "networkidle2" })
-
-  await page.screenshot({
-    path: path.join(defDownloadPath, "screenshot.png"),
-  })
-
-  browser.close()
-}
-
 export const getArchivePath = async () => {
   const platform = utils.isMacintosh ? "mac" : "win64"
   const archivePath = utils.isTest
-    ? path.resolve(__dirname, `../../app/chromium/${platform}`)
+    ? path.resolve(__dirname, `../../../app/chromium/${platform}`)
     : path.resolve(__dirname, `../chromium/${platform}`)
   const fileName = await (
     await utils.fsPromises.readdir(archivePath)

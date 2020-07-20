@@ -10,6 +10,9 @@ module.exports = {
         test: /.tsx?$/,
         exclude: [path.resolve("../node_modules")],
         loader: "ts-loader",
+        options: {
+          transpileOnly: true,
+        },
       },
     ],
   },

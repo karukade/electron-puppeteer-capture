@@ -1,22 +1,39 @@
 import React, { useEffect } from "react"
-import { useSelector } from "react-redux"
+import { BrowserRouter as Router } from "react-router-dom"
+import { createGlobalStyle } from "styled-components"
 
+import "normalize.css"
+
+import TabNav from "./common/TabNav"
+import Contents from "./common/Contents"
+import Layout from "./common/Layout"
 import { requestInitialData } from "./ipcHandler"
-import { StateType } from "../shared/reducers"
+
+const GlobalStyle = createGlobalStyle`
+ul,li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+p {
+  margin: 0;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+`
 
 const App: React.FC = () => {
-  const state = useSelector((state: StateType) => state)
-
   useEffect(() => {
     requestInitialData()
   }, [])
-
   return (
     <>
-      <div>APP</div>
-      <div>
-        <pre>{JSON.stringify(state, null, 4)}</pre>
-      </div>
+      <GlobalStyle />
+      <Router>
+        <Layout nav={<TabNav />} contents={<Contents />} />
+      </Router>
     </>
   )
 }

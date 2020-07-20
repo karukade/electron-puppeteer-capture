@@ -16,8 +16,17 @@ module.exports = merge.smart(baseConfig, {
     filename: "index.js",
     path: path.join(projectRoot, "app/renderer"),
   },
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: ["style-loader", "css-loader"],
+      },
+    ],
+  },
   devtool: process.env.NODE_ENV === "development" ? "inline-source-map" : false,
   devServer: {
+    historyApiFallback: true,
     port: DEV_SERVER_PORT,
     compress: true,
     noInfo: true,

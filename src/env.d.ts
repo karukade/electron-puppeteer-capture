@@ -1,17 +1,7 @@
-import "electron"
-import { handlers } from "./main/IpcHandler"
-
-declare module "electron" {
-  interface IpcRenderer {
-    invoke<K extends keyof typeof handlers>(
-      chanel: K,
-      args?: string[]
-    ): Promise<ReturnType<typeof handlers[K]>>
-  }
-}
+import { IpcRenderer } from "electron"
 
 declare global {
   interface Window {
-    ipcRenderer: Electron.IpcRenderer
+    ipcRenderer: IpcRenderer
   }
 }

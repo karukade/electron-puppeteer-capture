@@ -2,11 +2,11 @@ import { IpcRenderer } from "electron"
 import { createStore, applyMiddleware, Middleware } from "redux"
 import { forwardToMain, replayActionRenderer } from "electron-redux"
 
-import rootReducer from "../reducers/"
+import rootReducer, { StateType } from "../reducers/"
 
 export default function configureStore(
   ipcRenderer: IpcRenderer,
-  initialState: any
+  initialState: StateType
 ) {
   const middleware: Middleware[] = [forwardToMain(ipcRenderer)]
 

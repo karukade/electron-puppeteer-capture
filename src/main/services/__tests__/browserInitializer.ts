@@ -1,10 +1,10 @@
 import path from "path"
-import { hasDirOrFile, userDataDir, fsPromises } from "../utils"
+import { hasDirOrFile, userDataDir, fsPromises } from "../../utils"
 import {
   getArchivePath,
   extractChromium,
   getChromiumExecutablePath,
-} from "../services/puppeteerHandler"
+} from "../browserInitializer"
 import puppeteer from "puppeteer"
 
 const launchPuppeteer = async (executablePath: string) => {

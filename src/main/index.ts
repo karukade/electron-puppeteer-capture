@@ -3,7 +3,7 @@ import { app } from "electron"
 
 import * as utils from "./utils"
 import MainWindow from "./MainWindow"
-import { addIpcHandlers } from "./ipcHandler"
+import { addIpcHandlers } from "./ipc"
 import { addErrorHandler } from "./errHandler"
 import configureStore from "../shared/store/configureStore"
 

@@ -8,3 +8,4 @@ export const setChromiumInitialized = actionCreator<boolean>(
 export const setChromiumExecutablePath = actionCreator<string>(
   "SET_CHROMIUM_EXECUTABLE_PATH"
 )
+export const setCaptureSavePath = actionCreator<string>("SET_CAPTURE_SAVE_PATH")
