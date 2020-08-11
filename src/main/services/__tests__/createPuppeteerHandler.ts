@@ -1,5 +1,6 @@
 import path from "path"
 import sizeOf from "image-size"
+import puppeteer from "puppeteer"
 
 import { hasDirOrFile, userDataDir, fsPromises } from "../../utils"
 import {
@@ -8,10 +9,13 @@ import {
 } from "../browserInitializer"
 import {
   createPuppeteerHandler,
+  evaluate,
   ExpectedErrorType,
   LaunchOptionsType,
   EXPECTED_ERROR,
 } from "../createPuppeteerHandler"
+
+import { APP_NAME_PREFIX } from "../createCaptureHandler"
 
 const captureSavePath = path.join(userDataDir, "capture")
 const device = {
@@ -28,13 +32,6 @@ const device = {
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36",
   name: "Chrome",
 } as const
-
-const captureTargets = [
-  {
-    device,
-    output: "img",
-  },
-]
 
 let executablePath!: string
 
@@ -65,6 +62,7 @@ describe("puppeteerLauncher.capture", () => {
       url: "https://google.com",
       fileName: "test",
       onTitle: () => undefined,
+      logic: null,
       captureTargets: [
         {
           device,
@@ -88,6 +86,7 @@ describe("puppeteerLauncher.capture", () => {
       url: "https://google.com/",
       fileName: "test",
       onTitle: () => undefined,
+      logic: null,
       captureTargets: [
         {
           device,
@@ -105,6 +104,7 @@ describe("puppeteerLauncher.capture", () => {
     const { status } = await puppeteerLauncher.capture({
       url: "https://google.com/hoge",
       fileName: "test",
+      logic: null,
       onTitle: () => undefined,
       captureTargets: [
         {
@@ -128,11 +128,12 @@ describe("puppeteerLauncher.cancel", () => {
 
     const captureLoop = async () => {
       // eslint-disable-next-line no-constant-condition
-      let _error: null | ExpectedErrorType = null
+      let _error: null | ExpectedErrorType | string = null
       while (_error === null) {
         const { error } = await puppeteerLauncher.capture({
           url: "https://google.com",
           fileName: "test",
+          logic: null,
           onTitle: () => undefined,
           captureTargets: [
             {
@@ -152,4 +153,26 @@ describe("puppeteerLauncher.cancel", () => {
 
     expect(await captureLoop()).toEqual(EXPECTED_ERROR.cancel)
   }, 20000)
+})
+
+describe("evaluate", () => {
+  test("page.addScriptTagとpage.evaluateを実行する", async () => {
+    const logic = "logic"
+    const browser = await puppeteer.launch()
+    const page = await browser.newPage()
+    const logicScript = `
+      window.${APP_NAME_PREFIX} = {
+        ${logic}: () => { return "${logic}" }
+      }
+    `
+    const result = await evaluate({
+      logicScript,
+      logic,
+      page,
+    })
+
+    await browser.close()
+
+    expect(result).toBe(logic)
+  })
 })

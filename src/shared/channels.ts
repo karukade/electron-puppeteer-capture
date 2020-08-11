@@ -4,6 +4,10 @@ export const channels = {
   START_CAPTURE: "START_CAPTURE",
   SET_CAPTURE_SAVE_PATH: "SET_CAPTURE_SAVE_PATH",
   CANCEL_CAPTURE: "CANCEL_CAPTURE",
+  SET_LOGIC: "SET_LOGIC",
+  UPDATE_LOGIC: "UPDATE_LOGIC",
+  LOGIC_TEST: "LOGIC_TEST",
+  RESET_CAPTURE_STATE: "RESET_CAPTURE_STATE",
 } as const
 
 export type ChannelsType = typeof channels[keyof typeof channels]

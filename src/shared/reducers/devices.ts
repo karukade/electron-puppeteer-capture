@@ -1,15 +1,11 @@
 import { reducerWithInitialState } from "typescript-fsa-reducers"
-import {
-  addDevice,
-  updateDevice,
-  setDevices,
-  setPresets,
-} from "../actions/devices"
-import { DeviceListsType } from "../../main/services/devices"
+import { setSelected, setPresets, addPresets } from "../actions/devices"
+import { DeviceListsType, DeviceNamesType } from "../../main/services/devices"
 
 export type DeviceStateType = {
   presets: DeviceListsType
-} & DeviceListsType
+  selected: DeviceNamesType
+}
 
 const initialState: DeviceStateType = {
   presets: {
@@ -17,27 +13,26 @@ const initialState: DeviceStateType = {
     sp: [],
     tablet: [],
   },
-  pc: [],
-  sp: [],
-  tablet: [],
+  selected: {
+    pc: [],
+    sp: [],
+    tablet: [],
+  },
 }
 
 export default reducerWithInitialState(initialState)
-  .case(addDevice, (state, deviceInfo) => ({
+  .case(setSelected, (state, selected) => ({
     ...state,
-    [deviceInfo.type]: [...state[deviceInfo.type], deviceInfo],
-  }))
-  .case(updateDevice, (state, deviceInfo) => ({
-    ...state,
-    [deviceInfo.type]: state[deviceInfo.type].map((device) =>
-      device.name === deviceInfo.name ? deviceInfo : device
-    ),
-  }))
-  .case(setDevices, (state, deviceLists) => ({
-    ...state,
-    ...deviceLists,
+    selected,
   }))
   .case(setPresets, (state, deviceLists) => ({
     ...state,
     presets: deviceLists,
+  }))
+  .case(addPresets, (state, deviceInfo) => ({
+    ...state,
+    presets: {
+      ...state.presets,
+      [deviceInfo.type]: [...state.presets[deviceInfo.type], deviceInfo],
+    },
   }))

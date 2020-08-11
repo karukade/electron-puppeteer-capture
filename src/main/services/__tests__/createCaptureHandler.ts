@@ -122,11 +122,15 @@ describe("createCaptureHandler", () => {
 
 describe("createCaptureHandler().start()", () => {
   test("createPuppeteerHandlerのcapture関数をurlListの分だけ実行する", async () => {
-    const mockedCaptureFunc = jest.fn().mockResolvedValue(captureResult)
-    const ontitle = () => undefined
+    const mockedCaptureFunc = jest.fn().mockImplementation(({ onTitle }) => {
+      onTitle()
+      return Promise.resolve(captureResult)
+    })
+    const mockOnTitle = jest.fn()
     const mockOnCaptured = jest.fn()
     const mockCaptureStart = jest.fn()
     const mockCloseBrowser = jest.fn().mockResolvedValueOnce(undefined)
+    const mockOnDone = jest.fn()
 
     mockedCreatePuppeteerHandler.mockResolvedValue({
       capture: mockedCaptureFunc,
@@ -151,21 +155,38 @@ describe("createCaptureHandler().start()", () => {
             url,
             fileName: index,
             captureTargets: targets,
-            onTitle: ontitle,
+            onTitle: expect.any(Function),
           } as CaptureArgsType,
         ]
       }
     )
 
+    const onCapturedExpectedCalledWith: OnCapturedArgsType[][] = new Array(
+      urlList.size
+    )
+      .fill(0)
+      .map((_empty, i) => [
+        {
+          ...captureResult,
+          index: urlList.get(i)?.index as number,
+          canceled: false,
+        },
+      ])
+
     const { start } = await createCaptureHandler(settings, deviceList)
     await start(urlList, {
       onStart: mockCaptureStart,
       onCaptured: mockOnCaptured,
-      onTitle: ontitle,
+      onDone: mockOnDone,
+      onTitle: mockOnTitle,
     })
+
+    // console.log(mockedCaptureFunc.mock.calls)
+    // console.log(expectedCalledWith)
 
     expect(mockedCaptureFunc).toBeCalledTimes(expectedCalledWith.length)
     expect(mockedCaptureFunc.mock.calls).toEqual(expectedCalledWith)
+    expect(mockOnTitle).toBeCalledTimes(expectedCalledWith.length)
     expect(mockCaptureStart).toBeCalledTimes(urlList.size)
     expect(mockCaptureStart.mock.calls).toEqual(
       new Array(urlList.size)
@@ -173,13 +194,9 @@ describe("createCaptureHandler().start()", () => {
         .map((_empty, i) => [urlList.get(i)?.index])
     )
     expect(mockOnCaptured).toBeCalledTimes(urlList.size)
-    expect(mockOnCaptured.mock.calls).toEqual(
-      new Array(urlList.size)
-        .fill(0)
-        .map((_empty, i) => [
-          { ...captureResult, index: urlList.get(i)?.index },
-        ])
-    )
+    expect(mockOnCaptured.mock.calls).toEqual(onCapturedExpectedCalledWith)
+    expect(mockOnDone).toBeCalledTimes(1)
+    expect(mockOnDone).toBeCalledWith({ canceled: false })
     expect(mockCloseBrowser).toBeCalledTimes(1)
   })
 })

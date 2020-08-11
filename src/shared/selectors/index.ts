@@ -1,37 +1,103 @@
-import { Store } from "redux"
+import { createSelector } from "reselect"
+
 import { StateType } from "../reducers/"
 
-type StoreType = Store<StateType>
+//types
+import {
+  DeviceListsType,
+  DeviceType,
+  DeviceInfoType,
+} from "../../main/services/devices"
+import { AuthInfoDomainMap } from "../../main/services/basicAuth"
 
-export const getUnfinishedUrl = (store: StoreType) => {
-  const {
-    urls: { urls },
-  } = store.getState()
-  if (!urls) return urls
-  return new Map([...urls].filter(([, info]) => !info.done && !info.invalidUrl))
+const urlsSelector = (store: StateType) => store.urls.urls
+
+export const getUnfinishedUrl = createSelector(
+  urlsSelector,
+  (urls) =>
+    urls &&
+    new Map([...urls].filter(([, info]) => !info.done && !info.invalidUrl))
+)
+
+export const getUrlListArray = createSelector(
+  urlsSelector,
+  (urlsMap) => urlsMap && [...urlsMap].map(([, value]) => value)
+)
+
+const presetsSelector = (store: StateType) => store.devices.presets
+const selectedSelector = (store: StateType) => store.devices.selected
+
+export const getDevices = createSelector(
+  presetsSelector,
+  selectedSelector,
+  (presets, selected) => {
+    return Object.entries(selected).reduce(
+      (result, [deviceType, deviceNames]) => {
+        result[deviceType as DeviceType] = (deviceNames as string[]).map(
+          (deviceName) =>
+            presets[deviceType as DeviceType].find(
+              (device) => device.name === deviceName
+            ) as DeviceInfoType
+        )
+        return result
+      },
+      {} as DeviceListsType
+    )
+  }
+)
+
+export const getCaptureSavePath = (store: StateType) => {
+  return store.capture.captureSavePath
 }
 
-export const getDevices = (store: StoreType) => {
-  return store.getState().devices
+export const getExecutablePath = (store: StateType) => {
+  return store.capture.executablePath
 }
 
-export const getCaptureSavePath = (store: StoreType) => {
-  return store.getState().chromium.captureSavePath
-}
+export const getLogics = (store: StateType) => store.logics.logics
 
-export const getExecutablePath = (store: StoreType) => {
-  return store.getState().chromium.executablePath
-}
+export const basicAuthListsToMap = createSelector(
+  (state: StateType) => state.basicAuth.authLists,
+  (authLists) =>
+    authLists.reduce((map, authInfo) => {
+      map.set(authInfo.host, authInfo)
+      return map
+    }, new Map() as AuthInfoDomainMap)
+)
 
-export const getCaptureData = (store: StoreType) => {
+export const basicAuthListsKeys = createSelector(basicAuthListsToMap, (map) => [
+  ...map.keys(),
+])
+
+export const getCaptureData = (store: StateType) => {
   const urlList = getUnfinishedUrl(store)
-  const devices = getDevices(store)
+  const deviceList = getDevices(store)
   const captureSavePath = getCaptureSavePath(store)
   const executablePath = getExecutablePath(store)
+  const logics = getLogics(store)
+  const basicAuthLists = basicAuthListsToMap(store)
   return {
     urlList,
-    devices,
+    deviceList,
     captureSavePath,
     executablePath,
+    logics,
+    basicAuthLists,
+  }
+}
+
+export const getInitializeData = (store: StateType) => {
+  const devices = getDevices(store)
+  const executablePath = getExecutablePath(store)
+  const logics = getLogics(store)
+  const basicAuth = store.basicAuth.authLists
+  const devicePresets = store.devices.presets
+
+  return {
+    devices,
+    executablePath,
+    logics,
+    devicePresets,
+    basicAuth,
   }
 }

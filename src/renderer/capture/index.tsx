@@ -1,40 +1,46 @@
 import React from "react"
 import { useSelector } from "react-redux"
-import { readUrlsExcel, setCaptureSavePath, startCapture } from "../ipcHandler"
+import { Layout } from "antd"
 
+// Components
+import CaptureControl from "./CaptureControl"
 import UrlList from "./UrlList"
+import WaitStopModal from "./WaitStopModal"
 
+// selector
+import { getUrlListArray } from "../../shared/selectors"
+
+//types
 import { StateType } from "../../shared/reducers"
 
-const Capture: React.FC = () => {
-  const captureSavePath = useSelector(
-    (state: StateType) => state.chromium.captureSavePath
-  )
-  const urlListPath = useSelector((state: StateType) => state.urls.path)
-  const urlList = useSelector((state: StateType) => state.urls.urls)
+const { Content, Sider } = Layout
 
-  const onClickReadCaptureSavePath = () => {
-    setCaptureSavePath()
-  }
-  const onClickReadUrlList = () => {
-    readUrlsExcel()
-  }
-  const onClickStartCapture = () => startCapture()
+const Capture: React.FC = () => {
+  const urlList = useSelector(getUrlListArray)
+  const showWaitModal = useSelector(
+    (state: StateType) => state.capture.captureState === "stopping"
+  )
   return (
-    <div>
-      <section>
-        <h3>URLリストを選択</h3>
-        {urlListPath}
-        <button onClick={onClickReadUrlList}>URLリストを選択</button>
-      </section>
-      <section>
-        <h3>画像保存先を選択</h3>
-        {captureSavePath}
-        <button onClick={onClickReadCaptureSavePath}>画像保存先を選択</button>
-      </section>
-      <button onClick={onClickStartCapture}>キャプチャ開始</button>
-      {urlList instanceof Map && <UrlList list={urlList} />}
-    </div>
+    <Layout>
+      <Sider
+        theme="light"
+        width={400}
+        style={{
+          height: "100vh",
+          padding: "40px 20px",
+        }}
+      >
+        <CaptureControl />
+      </Sider>
+      <Content
+        style={{
+          height: "100vh",
+        }}
+      >
+        {urlList && <UrlList list={urlList} />}
+      </Content>
+      <WaitStopModal visible={showWaitModal} />
+    </Layout>
   )
 }
 

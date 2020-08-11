@@ -1,21 +1,23 @@
 import path from "path"
-import { ChildProcess } from "child_process"
-import puppeteer, { errors } from "puppeteer"
+import puppeteer from "puppeteer"
 
 import * as utils from "../utils"
 import { errCodes } from "../errHandler"
 
-import { CallBackType } from "./createCaptureHandler"
+import { APP_NAME_PREFIX } from "./createCaptureHandler"
+
+//types
 import { DeviceInfoType } from "./devices"
 import { CaptureTargetInfo } from "./urlListParser"
-import { LogicsType } from "./Logics"
-import { boolean } from "yargs"
+import { AuthInfo } from "./basicAuth"
 
 export const EXPECTED_ERROR = {
-  timeOut: "timeOut",
-  cancel: "cancel",
-  statusErr: "statusErr",
-  crash: "crash",
+  timeOut: "TIME_OUT",
+  cancel: "CANCEL",
+  statusErr: "STATUS_ERROR",
+  crash: "BROWSER_CRASH",
+  evalErr: "LOGIC_EVALUATE_ERROR",
+  netErr: "NET_ERROR",
 } as const
 
 export type OutputType = "pdf" | "img"
@@ -32,11 +34,48 @@ export type SettingsType = {
   launchOptions?: LaunchOptionsType
 }
 
+export type CreateCaptureHandlerArgsType = Pick<
+  SettingsType,
+  "captureSavePath"
+> & {
+  page: puppeteer.Page
+}
+
 export type CaptureArgsType = {
   url: string
   fileName: string | number
   captureTargets: { device: DeviceInfoType; output: OutputType[] }[]
-  onTitle: (title: string) => any
+  logic: CaptureTargetInfo["logic"]
+  onTitle: (title: string) => void
+  logicScript?: string
+  basicAuth?: AuthInfo
+}
+
+export type CaptureType = (args: CaptureArgsType) => Promise<CaptureResultType>
+
+type CancelType = () => void
+
+type CloseType = () => Promise<void>
+
+type ForDevicesArgs = Pick<
+  CaptureArgsType,
+  "captureTargets" | "fileName" | "logic" | "logicScript"
+> & {
+  page: puppeteer.Page
+  captureSavePath: string
+}
+
+type ForDevicesResult = {
+  filePaths: string[]
+  name: string
+}[]
+
+type ForOutPutArgs = Pick<
+  ForDevicesArgs,
+  "captureSavePath" | "fileName" | "page"
+> & {
+  output: OutputType[]
+  name: string
 }
 
 export type CaptureResultType = {
@@ -48,11 +87,10 @@ export type CaptureResultType = {
       }[]
     | null
   error: ExpectedErrorType | null
+  meta?: {
+    errorDetail?: string
+  }
 }
-
-export type CaptureType = (args: CaptureArgsType) => Promise<CaptureResultType>
-type CancelType = () => void
-type CloseType = () => Promise<void>
 
 const PUPPETEER_DEFAULT_SETTINGS = {
   headless: utils.isTest ? false : true,
@@ -114,20 +152,48 @@ const detectCancelError = (
   )
 }
 
-const handleError = (isCanceled: boolean, e?: Error & { message: string }) => {
+const handleError = (
+  isCanceled: boolean,
+  e?: Error & { message: string }
+): {
+  message: ExpectedErrorType
+  stack?: string
+} => {
   // 中断時
   if (detectCancelError(isCanceled, e)) {
-    return EXPECTED_ERROR.cancel
+    return {
+      message: EXPECTED_ERROR.cancel,
+    }
   }
 
   // タイムアウトエラー
-  if (e?.message.startsWith("TimeoutError")) {
-    return EXPECTED_ERROR.timeOut
+  if (e?.message.includes("Navigation timeout")) {
+    return {
+      message: EXPECTED_ERROR.timeOut,
+    }
   }
 
   // ページクラッシュ
   if (e?.message === "Page crashed!") {
-    return EXPECTED_ERROR.crash
+    return {
+      message: EXPECTED_ERROR.crash,
+    }
+  }
+
+  // page.evaluate エラー
+  if (e?.message === EXPECTED_ERROR.evalErr) {
+    return {
+      message: EXPECTED_ERROR.evalErr,
+      stack: e?.stack,
+    }
+  }
+
+  // ネットワーク系のエラー
+  if (e?.message.includes("net::")) {
+    return {
+      message: EXPECTED_ERROR.netErr,
+      stack: e?.message,
+    }
   }
 
   // 想定外のエラー
@@ -146,6 +212,23 @@ const gotoPage = async (page: puppeteer.Page, url: string) => {
     status,
     validStatus,
   }
+}
+
+type EvaluateArgs = Pick<ForDevicesArgs, "logicScript" | "logic" | "page">
+
+export const evaluate = async ({ logicScript, logic, page }: EvaluateArgs) => {
+  // ロジックをwindowに定義
+  if (logicScript) {
+    await page.addScriptTag({
+      content: logicScript,
+    })
+  }
+
+  // ページ内ロジックを実行
+  if (logicScript && logic)
+    return await page.evaluate(
+      `;(async () => { await window.${APP_NAME_PREFIX}["${logic}"]() } )()`
+    )
 }
 
 const capture = async (
@@ -176,66 +259,112 @@ const capture = async (
   return path
 }
 
-const captureWithDevices = async function* ({
+const forOutPuts = ({
+  output,
+  page,
+  captureSavePath,
+  fileName,
+  name,
+}: ForOutPutArgs) => {
+  return output.reduce<Promise<string[]>>(async (prevResults, out) => {
+    const filePaths = await prevResults
+    const filePath = await capture(
+      page,
+      out,
+      createFilePath(captureSavePath, fileName, name, out)
+    )
+    return [...filePaths, filePath]
+  }, Promise.resolve([]))
+}
+
+const forDevices = async ({
   page,
   captureTargets,
   captureSavePath,
   fileName,
-}: {
-  page: puppeteer.Page
-  captureTargets: CaptureArgsType["captureTargets"]
-  captureSavePath: string
-  fileName: string | number
-}) {
-  for (const {
-    output,
-    device: { viewport, userAgent, name },
-  } of captureTargets) {
-    // デバイスをセット
-    await page.emulate({
-      viewport,
-      userAgent,
-    })
+  logic,
+  logicScript,
+}: ForDevicesArgs) => {
+  return captureTargets.reduce<Promise<ForDevicesResult>>(
+    async (
+      prevTaskResults,
+      { output, device: { viewport, userAgent, name } },
+      i
+    ) => {
+      const prevResults = await prevTaskResults
 
-    const filePaths: string[] = []
+      // ロジックでページの状態が変わる可能性があるのでリロード
+      if (i !== 0) await page.reload(PAGE_SETTINGS)
 
-    for (const out of output) {
-      // キャプチャ
-      const filePath = await capture(
+      // デバイスをセット
+      await page.emulate({
+        viewport,
+        userAgent,
+      })
+
+      // ロジックを実行
+      await evaluate({
         page,
-        out,
-        createFilePath(captureSavePath, fileName, name, out)
-      )
-      filePaths.push(filePath)
-    }
-    yield {
-      filePaths,
-      name,
-    }
-  }
+        logic,
+        logicScript,
+      }).catch((e) => {
+        const err = new Error(EXPECTED_ERROR.evalErr)
+        err.stack = e.message
+        throw err
+      })
+
+      // 各img/pdfごとにループ
+      const filePaths = await forOutPuts({
+        output,
+        page,
+        captureSavePath,
+        fileName,
+        name,
+      })
+
+      return [
+        ...prevResults,
+        {
+          filePaths,
+          name,
+        },
+      ]
+    },
+    Promise.resolve([])
+  )
 }
 
-const createCaptureHandler = (
-  captureSavePath: string,
-  page: puppeteer.Page
-) => {
+const createCaptureHandler = ({
+  captureSavePath,
+  page,
+}: CreateCaptureHandlerArgsType) => {
   // この関数外からキャンセルするので
   // 外からキャンセルされたことを`onCancel`を読んで知らせてもらう
   let canceled = false
   const onCancel = () => (canceled = true)
 
+  // 外から呼び出すキャプチャ関数
   const captureProcess: CaptureType = async ({
     fileName,
     captureTargets,
     url,
+    logic,
     onTitle,
+    logicScript,
+    basicAuth,
   }) => {
     try {
+      // basic認証があれば設定
+      if (basicAuth) await page.authenticate(basicAuth)
+
       // ページに遷移
       const { status } = await gotoPage(page, url)
+
+      // タイトルを取得してコールバック実行
       const title = await page.title()
       onTitle(title)
-      // 200系以外は返す
+
+      // 200系以外はstatus error
       if (!status) {
         return {
           status,
@@ -244,29 +373,30 @@ const createCaptureHandler = (
         }
       }
 
-      const results: {
-        filePaths: string[]
-        name: string
-      }[] = []
-      for await (const result of captureWithDevices({
+      // 各デイバイスごとにループしてキャプチャ
+      const results = await forDevices({
         fileName,
         captureTargets,
         page,
         captureSavePath,
-      })) {
-        results.push(result)
-      }
+        logic,
+        logicScript,
+      })
+
       return {
         status,
         results,
         error: null,
       }
     } catch (e) {
-      const error = handleError(canceled, e)
+      const { message, stack } = handleError(canceled, e)
       return {
-        status: error,
+        status: message,
         results: null,
-        error,
+        error: message,
+        meta: {
+          errorDetail: stack,
+        },
       }
     }
   }
@@ -296,10 +426,10 @@ export const createPuppeteerHandler = async ({
   closeBrowser: CloseType
 }> => {
   const { browser, page } = await launchPuppeteer(executablePath, launchOptions)
-  const { captureProcess, onCancel } = createCaptureHandler(
+  const { captureProcess, onCancel } = createCaptureHandler({
     captureSavePath,
-    page
-  )
+    page,
+  })
   const cancel = createCancel(browser, onCancel)
   return {
     capture: captureProcess,

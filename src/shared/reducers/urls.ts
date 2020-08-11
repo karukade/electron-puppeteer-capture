@@ -1,5 +1,5 @@
 import { reducerWithInitialState } from "typescript-fsa-reducers"
-import { setUrlList, upDateUrlList } from "../actions/urls"
+import { setUrlList, upDateUrlList, resetUrlList } from "../actions/urls"
 import { UrlListType } from "../../main/services/urlListParser"
 
 export type UrlsType = {
@@ -45,3 +45,6 @@ export default reducerWithInitialState(initialState)
       urls: updated,
     }
   })
+  .case(resetUrlList, () => ({
+    ...initialState,
+  }))

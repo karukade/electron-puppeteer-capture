@@ -53,6 +53,7 @@ export type CaptureTargetInfo = {
   logic: string | null
 }
 export type UrlListType = Map<number, CaptureTargetInfo>
+export type ArrayedUrlListType = CaptureTargetInfo[]
 
 const isHyperlink = (value: Exclude<ExcelJS.CellValue, number | string>) => {
   if (!value) return false
@@ -88,8 +89,33 @@ const getCaptureTargetValue = (
   return null
 }
 
-const isValidUrl = (url: string | number | null) =>
-  typeof url === "string" && /^https?:\/\//.test(url)
+export const isValidUrl = (url: string | number | null) =>
+  typeof url === "string" &&
+  /[(http(s)?)://(www.)?a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/.test(
+    url
+  )
+
+export const createLogicTestUrlList = (
+  url: string,
+  logic: string,
+  device: DeviceType = "pc"
+): UrlListType =>
+  new Map([
+    [
+      1,
+      {
+        title: "",
+        url,
+        status: null,
+        done: false,
+        capturing: false,
+        invalidUrl: isValidUrl(url),
+        captureTargets: { [device]: ["img"] },
+        index: 1,
+        logic,
+      },
+    ],
+  ])
 
 export const parseList = async (src: string, sheetId = 1) => {
   const workBook = new ExcelJS.Workbook()
@@ -97,7 +123,6 @@ export const parseList = async (src: string, sheetId = 1) => {
   const workSheet = workBook.getWorksheet(sheetId)
   const urlList: UrlListType = new Map()
   const header: HeadersType[] = []
-
   workSheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
     const targetInfo = {
       title: "",
@@ -151,7 +176,6 @@ export const parseList = async (src: string, sheetId = 1) => {
     targetInfo.captureTargets = captureTargets
     urlList.set(targetInfo.index, targetInfo)
   })
-
   return urlList
 }
 

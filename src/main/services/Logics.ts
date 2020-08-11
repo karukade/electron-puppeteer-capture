@@ -2,29 +2,27 @@ import path from "path"
 import * as utils from "../utils"
 import { errCodes } from "../errHandler"
 
-type LogicsValue = {
+export type LogicInfo = {
+  name: string
   value: string
   description?: string
 }
 
-type LogicInfo = LogicsValue & {
-  name: string
+export type UpdateLogicArg = {
+  logic: LogicInfo
+  logics: LogicsType
+  lastLogicName?: string
 }
 
 const logicFilePath = path.join(utils.userDataDir, "logics.json")
 
-export type LogicsType = Map<string, LogicsValue>
-
-export const isValidLogic = (info: LogicInfo) => {
-  return info.name !== "" && info.value !== ""
-}
+export type LogicsType = Map<string, LogicInfo>
 
 export const mergeNewLogic = (
   { name, ...rest }: LogicInfo,
-  logics: LogicsType
+  logics: LogicsType | null
 ) => {
-  if (isValidLogic({ name, ...rest })) return null
-  return new Map(logics).set(name, rest)
+  return new Map(logics || []).set(name, { name, ...rest })
 }
 
 export const readLogicsFromFile = async () => {
@@ -39,26 +37,24 @@ export const writeLogicFile = async (logics: LogicsType) => {
   await utils.fsPromises.writeFile(logicFilePath, JSON.stringify([...logics]))
 }
 
-export const updateLogic = async (
-  { name, ...rest }: LogicInfo,
-  lastLogicName: string,
-  logics: LogicsType
-) => {
+export const updateLogic = ({
+  logic: { name, ...rest },
+  logics,
+  lastLogicName,
+}: UpdateLogicArg) => {
   //ロジック名に変更がなければそのまま上書き
-  if (logics.has(name)) {
-    return new Map(logics).set(name, rest)
-  } else {
-    //ロジック名が変更されていたら同じlastLogicNameの位置にセットする
-    const newLogics = new Map()
-    logics.forEach((info, _name) => {
-      if (_name === lastLogicName) {
-        newLogics.set(name, rest)
-      } else {
-        newLogics.set(_name, info)
-      }
-    })
-    return newLogics
-  }
+  if (logics.has(name)) return new Map(logics).set(name, { name, ...rest })
+  if (!lastLogicName) return logics
+  //ロジック名が変更されていたら同じlastLogicNameの位置にセットする
+  const newLogics = new Map()
+  logics.forEach((info, _name) => {
+    if (_name === lastLogicName) {
+      newLogics.set(name, { name, ...rest })
+    } else {
+      newLogics.set(_name, info)
+    }
+  })
+  return newLogics
 }
 
 export const importLogic = async (importedFilePath: string) => {

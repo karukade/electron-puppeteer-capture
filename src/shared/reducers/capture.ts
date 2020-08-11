@@ -3,18 +3,21 @@ import {
   setChromiumExecutablePath,
   setChromiumInitialized,
   setCaptureSavePath,
-} from "../actions/chromium"
+  setCaptureState,
+} from "../actions/capture"
 
-export type ChromiumStateType = {
+export type CaptureStateType = {
   initialized: boolean
   executablePath: string | null
   captureSavePath: string | null
+  captureState: "idle" | "progress" | "stopping" | "stop" | "done"
 }
 
-const initialState: ChromiumStateType = {
+const initialState: CaptureStateType = {
   initialized: false,
   executablePath: null,
   captureSavePath: null,
+  captureState: "idle",
 }
 
 export default reducerWithInitialState(initialState)
@@ -29,4 +32,8 @@ export default reducerWithInitialState(initialState)
   .case(setCaptureSavePath, (state, captureSavePath) => ({
     ...state,
     captureSavePath,
+  }))
+  .case(setCaptureState, (state, captureState) => ({
+    ...state,
+    captureState,
   }))

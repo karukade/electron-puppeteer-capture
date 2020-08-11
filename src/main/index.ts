@@ -7,6 +7,9 @@ import { addIpcHandlers } from "./ipc"
 import { addErrorHandler } from "./errHandler"
 import configureStore from "../shared/store/configureStore"
 
+// store actions
+import { setPlatForm } from "../shared/actions/env"
+
 const mainWindow = new MainWindow()
 const store = configureStore()
 
@@ -40,6 +43,7 @@ app.on("ready", async () => {
     }
     await installExtensions()
   }
+  store.dispatch(setPlatForm(process.platform))
   mainWindow.createWindow()
 })
 

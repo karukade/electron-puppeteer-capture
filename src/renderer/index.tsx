@@ -9,6 +9,7 @@ import configureStore from "../shared/store/configureStore.renderer"
 const { ipcRenderer } = window
 
 getInitialStateRenderer(ipcRenderer).then((initialState) => {
+  console.log(initialState)
   const store = configureStore(ipcRenderer, initialState)
   render(
     <Provider store={store}>

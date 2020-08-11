@@ -1,6 +1,7 @@
 const path = require("path")
 const { spawn } = require("child_process")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
+const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin")
 
 const merge = require("webpack-merge")
 const baseConfig = require("./webpack.base.config")
@@ -22,6 +23,10 @@ module.exports = merge.smart(baseConfig, {
         test: /\.css$/,
         use: ["style-loader", "css-loader"],
       },
+      {
+        test: /\.ttf$/,
+        use: ["file-loader"],
+      },
     ],
   },
   devtool: process.env.NODE_ENV === "development" ? "inline-source-map" : false,
@@ -42,19 +47,15 @@ module.exports = merge.smart(baseConfig, {
         shell: true,
         stdio: "inherit",
         env: Object.assign({ DEV_SERVER_PORT }, process.env),
-      })
-        .on("close", (code) => process.exit(code))
-        .on("error", (spawnError) => {
-          log(spawnError)
-        })
-        .on("data", (data) => {
-          log(data)
-        })
+      }).on("close", (code) => process.exit(code))
     },
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: path.join(projectRoot, "src/renderer/index.html"),
+    }),
+    new MonacoWebpackPlugin({
+      languages: ["typescript", "javascript", "css"],
     }),
   ],
   externals: {

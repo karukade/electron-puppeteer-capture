@@ -1,5 +1,5 @@
 import { IpcRenderer } from "electron"
-import { createStore, applyMiddleware, Middleware } from "redux"
+import { createStore, applyMiddleware, compose, Middleware } from "redux"
 import { forwardToMain, replayActionRenderer } from "electron-redux"
 
 import rootReducer, { StateType } from "../reducers/"
@@ -9,11 +9,11 @@ export default function configureStore(
   initialState: StateType
 ) {
   const middleware: Middleware[] = [forwardToMain(ipcRenderer)]
-
+  const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
   const store = createStore(
     rootReducer,
     initialState,
-    applyMiddleware(...middleware)
+    composeEnhancer(applyMiddleware(...middleware))
   )
 
   replayActionRenderer(ipcRenderer, store)
