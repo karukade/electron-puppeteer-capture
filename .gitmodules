@@ -1,3 +1,0 @@
-[submodule "electron-redux"]
-	path = electron-redux
-	url = https://github.com/karukade/electron-redux.git
