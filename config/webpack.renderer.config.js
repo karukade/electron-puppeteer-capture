@@ -5,7 +5,6 @@ const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin")
 
 const merge = require("webpack-merge")
 const baseConfig = require("./webpack.base.config")
-const log = require("./log")
 
 const projectRoot = path.resolve(__dirname, "..")
 const DEV_SERVER_PORT = 8081

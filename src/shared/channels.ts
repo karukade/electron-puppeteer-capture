@@ -8,6 +8,7 @@ export const channels = {
   UPDATE_LOGIC: "UPDATE_LOGIC",
   LOGIC_TEST: "LOGIC_TEST",
   RESET_CAPTURE_STATE: "RESET_CAPTURE_STATE",
+  DOWNLOAD_URL_LIST: "DOWNLOAD_URL_LIST",
 } as const
 
 export type ChannelsType = typeof channels[keyof typeof channels]

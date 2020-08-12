@@ -3,7 +3,7 @@ dist/
 node_modules/
 thumbs.db
 .idea/
-Spears.drawio
+memo.md
 app
 release
 chromium

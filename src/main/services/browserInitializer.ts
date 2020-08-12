@@ -10,9 +10,9 @@ export const getArchivePath = async () => {
   const archivePath = utils.isTest
     ? path.resolve(__dirname, `../../../app/chromium/${platform}`)
     : path.resolve(__dirname, `../chromium/${platform}`)
-  const fileName = await (
-    await utils.fsPromises.readdir(archivePath)
-  ).find((file) => /\.zip$/.test(file))
+  const fileName = (await utils.fsPromises.readdir(archivePath)).find((file) =>
+    /\.zip$/.test(file)
+  )
 
   if (!fileName) throw new Error("chromium archive not found.")
 

@@ -1,6 +1,9 @@
 import { IpcRenderer } from "electron"
 import { createStore, applyMiddleware, compose, Middleware } from "redux"
-import { forwardToMain, replayActionRenderer } from "electron-redux"
+import {
+  forwardToMain,
+  replayActionRenderer,
+} from "@karukade/electron-redux-ts"
 
 import rootReducer, { StateType } from "../reducers/"
 

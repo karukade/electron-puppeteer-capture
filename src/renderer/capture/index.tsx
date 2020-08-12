@@ -6,6 +6,7 @@ import { Layout } from "antd"
 import CaptureControl from "./CaptureControl"
 import UrlList from "./UrlList"
 import WaitStopModal from "./WaitStopModal"
+import DownloadBtn from "./DownloadBtn"
 
 // selector
 import { getUrlListArray } from "../../shared/selectors"
@@ -20,13 +21,14 @@ const Capture: React.FC = () => {
   const showWaitModal = useSelector(
     (state: StateType) => state.capture.captureState === "stopping"
   )
+
   return (
     <Layout>
       <Sider
         theme="light"
         width={400}
         style={{
-          height: "100vh",
+          minHeight: "100vh",
           padding: "40px 20px",
         }}
       >
@@ -34,10 +36,10 @@ const Capture: React.FC = () => {
       </Sider>
       <Content
         style={{
-          height: "100vh",
+          minHeight: "100vh",
         }}
       >
-        {urlList && <UrlList list={urlList} />}
+        {urlList ? <UrlList list={urlList} /> : <DownloadBtn />}
       </Content>
       <WaitStopModal visible={showWaitModal} />
     </Layout>

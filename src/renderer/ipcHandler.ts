@@ -47,3 +47,7 @@ export const logicTest = (
 ): Promise<ForMattedResultType> => {
   return ipcRenderer.invoke(channels.LOGIC_TEST, url, logic)
 }
+
+export const downloadUrlList = () => {
+  return ipcRenderer.invoke(channels.DOWNLOAD_URL_LIST)
+}

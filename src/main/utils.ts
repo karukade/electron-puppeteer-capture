@@ -41,3 +41,5 @@ export const userDataDir = isDevelopment
   : isTest
   ? path.resolve(__dirname, "../../test-user-data")
   : (argv as Argv).userData || app.getPath("userData")
+
+export const defaultDownloadDir = app.getPath("downloads")

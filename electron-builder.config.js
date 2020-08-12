@@ -1,5 +1,7 @@
+const packageConfig = require("./package.json")
+
 module.exports = {
-  productName: "puppeeteer-capture",
+  productName: packageConfig.name,
   directories: {
     output: "release",
   },

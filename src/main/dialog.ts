@@ -9,9 +9,12 @@ export const showFileSelectDialog = async (ext = "xlsx") => {
   return filePaths[0]
 }
 
-export const showDirSelectDialog = async () => {
+export const showDirSelectDialog = async (
+  options?: Electron.OpenDialogOptions
+) => {
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ["openDirectory", "createDirectory"],
+    ...options,
   })
   if (canceled || filePaths.length === 0) return null
   return filePaths[0]

@@ -1,46 +1,33 @@
-# electron-webpack-quick-start
-> A bare minimum project structure to get started developing with [`electron-webpack`](https://github.com/electron-userland/electron-webpack).
+# electron-puppeteer-xlsx（作り途中）
 
-Thanks to the power of `electron-webpack` this template comes packed with...
+URLを記載したエクセルのリストを読み込んで、ページをキャプチャするツール。electron+react+typescript学習用に制作。puppeteerにelectronでUIを持たせた感じ。
 
-* Use of [`webpack-dev-server`](https://github.com/webpack/webpack-dev-server) for development
-* HMR for both `renderer` and `main` processes
-* Use of [`babel-preset-env`](https://github.com/babel/babel-preset-env) that is automatically configured based on your `electron` version
-* Use of [`electron-builder`](https://github.com/electron-userland/electron-builder) to package and build a distributable electron application
+## 機能
+- xlsxのURLリストを読み込んでキャプチャ
+- PC,Mobile,Tabletそれぞれの端末のviewportとUAを設定してキャプチャすることが可能（Puppeteerで用意されているデバイスのプリセットから選択）
+- hostごとのbasic認証設定機能
+- キャプチャ前にページ内で実行するjsを登録する機能
 
-Make sure to check out [`electron-webpack`'s documentation](https://webpack.electron.build/) for more details.
+## 仕様技術
+- electron
+- react
+- puppeteer
+- redux
 
-## Getting Started
-Simply clone down this repository, install dependencies, and get started on your application.
-
-The use of the [yarn](https://yarnpkg.com/) package manager is **strongly** recommended, as opposed to using `npm`.
-
+## 試し方
+electronのパッケージ内で、puppeteerからchromiumを起動しようとするとパスが解決できずエラーになるので、chromiumのzipだけをelectronのパッケージにいれておいて初回起動時にelectronの``app.getPath("userData")``に解凍する。（開発時はプロジェクトルートの``dev-user-data``に解凍される）
 ```bash
-# create a directory of your choice, and copy template using curl
-mkdir new-electron-webpack-project && cd new-electron-webpack-project
-curl -fsSL https://github.com/electron-userland/electron-webpack-quick-start/archive/master.tar.gz | tar -xz --strip-components 1
+# リポジトリをクローン
+git clone https://github.com/karukade/electron-puppeteer-capture.git
 
-# or copy template using git clone
-git clone https://github.com/electron-userland/electron-webpack-quick-start.git
-cd electron-webpack-quick-start
-rm -rf .git
+yarn install
 
-# install dependencies
-yarn
-```
+# chromiumをダウンロード
+yarn install:chromium
 
-### Development Scripts
+# electronの起動
+yarn start
 
-```bash
-# run application in development mode
-yarn dev
-
-# compile source code and create webpack output
-yarn compile
-
-# `yarn compile` & create build with electron-builder
+# パッケージのビルド
 yarn dist
-
-# `yarn compile` & create unpacked build with electron-builder
-yarn dist:dir
 ```
