@@ -3,13 +3,10 @@ const puppeteer = require("puppeteer")
 const { PUPPETEER_REVISIONS } = require("puppeteer/lib/cjs/revisions")
 const { archiveDir, ProgressBar } = require("./utils")
 
-//対応するplatform
-const supportedPlatforms = ["win64", "mac"]
-
 // localのダウンロード先
 const downloadPath = path.resolve(__dirname, "../chromium")
 
-const download = async (platform) => {
+const download = async (platform, distDir) => {
   let progressBar
   const browserFetcher = puppeteer.createBrowserFetcher({
     platform,
@@ -34,9 +31,8 @@ const download = async (platform) => {
   console.log("downloaded chromium", chromePath)
   console.log("revision info", revisionInfo)
 
-  const dist = path.resolve(
-    __dirname,
-    `../app/chromium/${platform}`,
+  const dist = path.join(
+    distDir,
     `${path.basename(revisionInfo.folderPath)}.zip`
   )
 
@@ -45,14 +41,14 @@ const download = async (platform) => {
 
   await archiveDir(chromePath, dist)
 
-  console.log(`archived at ${dist}`)
+  console.log(`archived to ${dist}`)
 }
 
-const main = async (platforms) => {
+const installChromium = async (platforms) => {
   for (const platform of platforms) {
     await download(platform)
   }
   process.exit(0)
 }
 
-main(supportedPlatforms)
+module.exports = download

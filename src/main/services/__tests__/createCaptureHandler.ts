@@ -13,7 +13,6 @@ import {
 
 import { DeviceListsType } from "../devices"
 import { UrlListType } from "../urlListParser"
-import { url } from "inspector"
 
 jest.mock("../createPuppeteerHandler")
 
@@ -67,7 +66,6 @@ const deviceList: DeviceListsType = {
     },
   ],
 }
-const captureTargetDevices = ["pc", "sp", "tablet"] as const
 
 const urlList: UrlListType = new Map(
   new Array(3).fill(0).map((_empty, i) => {
@@ -75,7 +73,7 @@ const urlList: UrlListType = new Map(
       i,
       {
         title: "",
-        url: "hoge",
+        url: "https://google.com",
         index: i,
         invalidUrl: false,
         done: false,
@@ -115,7 +113,22 @@ describe("createCaptureHandler", () => {
       cancel: () => undefined,
       closeBrowser: () => Promise.resolve(),
     } as any)
-    await createCaptureHandler(settings, deviceList)
+    await createCaptureHandler({
+      settings,
+      deviceList,
+      logics: null,
+      basicAuthLists: new Map([
+        [
+          "a",
+          {
+            id: 1,
+            host: "a",
+            username: "a",
+            password: "a",
+          },
+        ],
+      ]),
+    })
     expect(mockedCreatePuppeteerHandler).toHaveBeenCalledWith(settings)
   })
 })
@@ -153,6 +166,14 @@ describe("createCaptureHandler().start()", () => {
         return [
           {
             url,
+            basicAuth: {
+              id: 1,
+              host: "a",
+              username: "a",
+              password: "a",
+            },
+            logicScript: undefined,
+            logic: "",
             fileName: index,
             captureTargets: targets,
             onTitle: expect.any(Function),
@@ -173,16 +194,28 @@ describe("createCaptureHandler().start()", () => {
         },
       ])
 
-    const { start } = await createCaptureHandler(settings, deviceList)
+    const { start } = await createCaptureHandler({
+      settings,
+      deviceList,
+      logics: null,
+      basicAuthLists: new Map([
+        [
+          "google.com",
+          {
+            id: 1,
+            host: "a",
+            username: "a",
+            password: "a",
+          },
+        ],
+      ]),
+    })
     await start(urlList, {
       onStart: mockCaptureStart,
       onCaptured: mockOnCaptured,
       onDone: mockOnDone,
       onTitle: mockOnTitle,
     })
-
-    // console.log(mockedCaptureFunc.mock.calls)
-    // console.log(expectedCalledWith)
 
     expect(mockedCaptureFunc).toBeCalledTimes(expectedCalledWith.length)
     expect(mockedCaptureFunc.mock.calls).toEqual(expectedCalledWith)
@@ -211,7 +244,22 @@ describe("createCaptureHandler().cancel()", () => {
       closeBrowser: () => Promise.resolve(),
     } as any)
 
-    const { cancel } = await createCaptureHandler(settings, deviceList)
+    const { cancel } = await createCaptureHandler({
+      settings,
+      deviceList,
+      logics: null,
+      basicAuthLists: new Map([
+        [
+          "a",
+          {
+            id: 1,
+            host: "a",
+            username: "a",
+            password: "a",
+          },
+        ],
+      ]),
+    })
     cancel()
     expect(mockedCancelFunc).toBeCalledTimes(1)
   })

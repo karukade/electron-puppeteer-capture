@@ -2,7 +2,6 @@ import path from "path"
 import { ipcMain } from "electron"
 import { Store } from "redux"
 import { showDirSelectDialog } from "../dialog"
-import { userDataDir, hasDirOrFile, fsPromises } from "../utils"
 
 // channel
 import { channels } from "../../shared/channels"

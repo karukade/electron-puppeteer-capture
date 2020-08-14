@@ -24,7 +24,9 @@ describe("parseList", () => {
       ],
     ])
     expect(
-      await parseList(path.resolve(__dirname, "../../../../data/test.xlsx"))
+      await parseList(
+        path.resolve(__dirname, "../../../../tests-data/test.xlsx")
+      )
     ).toEqual(expected)
   })
 })

@@ -11,9 +11,10 @@
     "build:main": "cross-env NODE_ENV=production webpack --config ./config/webpack.main.config.js --color",
     "build:renderer": "cross-env NODE_ENV=production webpack --config ./config/webpack.renderer.config.js --color --display-modules",
     "build": "yarn build:main && yarn build:renderer",
-    "dist": "yarn build && electron-builder --config electron-builder.config.js",
-    "test": "cross-env NODE_ENV=test jest",
-    "install:chromium": "node scripts/installChromium"
+    "prebuild": "node scripts/beforeBuild",
+    "dist": "yarn prebuild && yarn build && electron-builder --config electron-builder.config.js",
+    "test": "cross-env NODE_ENV=test jest --runInBand",
+    "postinstall": "node scripts/prepare"
   },
   "dependencies": {
     "@ant-design/icons": "^4.2.1",
@@ -65,6 +66,7 @@
     "eslint-plugin-react": "^7.20.0",
     "eslint-plugin-react-hooks": "^4.0.2",
     "file-loader": "^6.0.0",
+    "fs-extra": "^9.0.1",
     "html-webpack-plugin": "^4.3.0",
     "image-size": "^0.8.3",
     "jest": "^26.1.0",

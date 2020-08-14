@@ -227,7 +227,7 @@ export const evaluate = async ({ logicScript, logic, page }: EvaluateArgs) => {
   // ページ内ロジックを実行
   if (logicScript && logic)
     return await page.evaluate(
-      `;(async () => { await window.${APP_NAME_PREFIX}["${logic}"]() } )()`
+      `;(async () => { return await window.${APP_NAME_PREFIX}["${logic}"]() } )()`
     )
 }
 

@@ -28,7 +28,7 @@ const Capture: React.FC = () => {
         theme="light"
         width={400}
         style={{
-          minHeight: "100vh",
+          height: "100vh",
           padding: "40px 20px",
         }}
       >
@@ -36,7 +36,7 @@ const Capture: React.FC = () => {
       </Sider>
       <Content
         style={{
-          minHeight: "100vh",
+          height: "100vh",
         }}
       >
         {urlList ? <UrlList list={urlList} /> : <DownloadBtn />}

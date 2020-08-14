@@ -31,8 +31,8 @@ export const readUrlList = async (store: Store) => {
 }
 
 const getUrlListArchivePath = () => {
-  return utils.isTest || utils.isDevelopment
-    ? path.resolve(__dirname, `../../resources/${LIST_NAME}`)
+  return utils.isTest
+    ? path.resolve(__dirname, `../../${LIST_NAME}`)
     : path.resolve(__dirname, `../${LIST_NAME}`)
 }
 

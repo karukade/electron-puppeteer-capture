@@ -1,0 +1,10 @@
+{
+  "name": "glutton",
+  "version": "0.0.0",
+  "main": "main/index.js",
+  "description": "a screenshot app",
+  "author": {
+    "email": "gaaadaaa16@gmail.com",
+    "name": "karukade"
+  }
+}

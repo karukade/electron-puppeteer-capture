@@ -90,7 +90,7 @@ describe("puppeteerLauncher.capture", () => {
       captureTargets: [
         {
           device,
-          output: ["img"],
+          output: ["pdf"],
         },
       ],
     })
