@@ -4,6 +4,7 @@ module.exports = {
   productName: packageConfig.name,
   directories: {
     output: "release",
+    buildResources: "resources",
   },
   // appディレクトリからの相対パス
   //chromiumは含めない
