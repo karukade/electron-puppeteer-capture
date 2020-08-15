@@ -12,7 +12,7 @@ import {
 import { LogicsType } from "./logics"
 import { UrlListType, CaptureTargetInfo, CaptureTarget } from "./urlListParser"
 import { DeviceListsType, DeviceType } from "./devices"
-import { AuthInfoDomainMap, AuthInfo } from "./basicAuth"
+import { AuthInfoDomainMap } from "./basicAuth"
 
 export type OnCapturedArgsType = CaptureResultType & {
   index: CaptureTargetInfo["index"]

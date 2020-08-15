@@ -81,6 +81,7 @@ export const logicTest = async (
   url: string,
   device?: DeviceType
 ): Promise<ForMattedResultType> => {
+  console.log(url, "url")
   if (!isValidUrl(url))
     return {
       error: "INVALID_URL",

@@ -69,7 +69,7 @@ const handlers: HandlersType = {
     updateLogics(store, logic, lastLogicName)
   },
 
-  [channels.LOGIC_TEST]: (store, event, [url, logic]: string[]) => {
+  [channels.LOGIC_TEST]: (store, event, url, logic) => {
     return logicTest(store, logic, url)
   },
 
