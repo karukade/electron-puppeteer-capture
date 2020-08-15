@@ -26,7 +26,11 @@ const alreadyPrepared = async (paths) => {
     return console.log("already prepared")
   await fs.mkdir(path.resolve(__dirname, "../app"), { recursive: true })
   await Promise.all([
-    ...downloadArgs.map(([platform, dist]) => download(platform, dist)),
+    ...downloadArgs.reduce(
+      (prev, [platform, dist]) => prev.then(() => download(platform, dist)),
+      Promise.resolve()
+    ),
     fs.copyFile(urlListPath, urlListDist),
   ])
+  process.exit(0)
 })()

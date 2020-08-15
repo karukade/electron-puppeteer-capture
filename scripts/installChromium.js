@@ -44,11 +44,4 @@ const download = async (platform, distDir) => {
   console.log(`archived to ${dist}`)
 }
 
-const installChromium = async (platforms) => {
-  for (const platform of platforms) {
-    await download(platform)
-  }
-  process.exit(0)
-}
-
 module.exports = download
