@@ -8,14 +8,14 @@ import Settings from "../settings"
 const App: React.FC = () => {
   return (
     <Switch>
-      <Route exact path="/">
-        <Capture />
-      </Route>
       <Route exact path="/logics">
         <Logics />
       </Route>
       <Route exact path="/settings">
         <Settings />
+      </Route>
+      <Route path="/">
+        <Capture />
       </Route>
     </Switch>
   )

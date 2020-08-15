@@ -1,3 +1,4 @@
+import "./publicPath"
 import React from "react"
 import { Provider } from "react-redux"
 import { render } from "react-dom"
@@ -9,7 +10,6 @@ import configureStore from "../shared/store/configureStore.renderer"
 const { ipcRenderer } = window
 
 getInitialStateRenderer(ipcRenderer).then((initialState) => {
-  console.log(initialState)
   const store = configureStore(ipcRenderer, initialState)
   render(
     <Provider store={store}>

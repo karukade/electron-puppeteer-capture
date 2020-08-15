@@ -15,7 +15,8 @@ URLを記載したエクセルのリストを読み込んで、ページをキ�
 - redux
 
 ## 試し方
-electronのパッケージ内で、puppeteerからchromiumを起動しようとするとパスが解決できずエラーになるので、chromiumのzipだけをelectronのパッケージにいれておいて初回起動時にelectronの``app.getPath("userData")``に解凍する。（開発時はプロジェクトルートの``dev-user-data``に解凍される）
+electronのパッケージ内で、puppeteerからchromiumを起動しようとするとパスが解決できずエラーになるので、chromiumのzipだけをelectronのパッケージにいれておいて初回起動時にelectronの``app.getPath("userData")``に解凍する。（開発時はプロジェクトルートの``dev-user-data``に解凍される）<br>
+ビルド後のパッケージの起動オプションに``--userData=/path/to/userData``を指定することで、任意のフォルダにchromiumを解凍できる。
 ```bash
 # リポジトリをクローン
 git clone https://github.com/karukade/electron-puppeteer-capture.git
@@ -30,4 +31,5 @@ yarn start
 
 # パッケージのビルド
 yarn dist
+
 ```

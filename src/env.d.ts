@@ -19,5 +19,7 @@ declare global {
       opts?: RequestIdleCallbackOptions
     ) => RequestIdleCallbackHandle
     cancelIdleCallback: (handle: RequestIdleCallbackHandle) => void
+    __webpack_public_path__: string
+    __GLUTTON_ENV__: "development" | "production"
   }
 }

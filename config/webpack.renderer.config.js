@@ -1,4 +1,5 @@
 const path = require("path")
+const webpack = require("webpack")
 const { spawn } = require("child_process")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin")
@@ -55,6 +56,9 @@ module.exports = merge.smart(baseConfig, {
     }),
     new MonacoWebpackPlugin({
       languages: ["typescript", "javascript", "css"],
+    }),
+    new webpack.DefinePlugin({
+      __GLUTTON_ENV__: JSON.stringify(process.env.NODE_ENV),
     }),
   ],
   externals: {
