@@ -1,5 +1,6 @@
 import path from "path"
 import { Store } from "redux"
+import { shell } from "electron"
 import { userDataDir, hasDirOrFile, fsPromises } from "../utils"
 
 // service
@@ -81,7 +82,6 @@ export const logicTest = async (
   url: string,
   device?: DeviceType
 ): Promise<ForMattedResultType> => {
-  console.log(url, "url")
   if (!isValidUrl(url))
     return {
       error: "INVALID_URL",
@@ -142,6 +142,9 @@ export const logicTest = async (
   })
 
   const result = await onCapturedPromise
+  const filePath = result?.results?.[0].filePaths?.[0]
+
+  if (filePath) shell.openPath(filePath)
 
   return formatResult(result)
 }

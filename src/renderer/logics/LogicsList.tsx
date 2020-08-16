@@ -13,7 +13,6 @@ const renderItem = ([key, logic]: [string, LogicInfo]) => (
 
 const LogicsList: React.FC = () => {
   const logics = useSelector((store: StateType) => store.logics.logics)
-  console.log("LogicsList")
   return (
     <>
       {logics && (

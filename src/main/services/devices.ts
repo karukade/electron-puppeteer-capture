@@ -92,9 +92,9 @@ const detectDeviceType = (name: string): DeviceType => {
 }
 
 export const readDevicePresetsFromFile = async (): Promise<DeviceListsType | null> => {
-  if (!(await utils.hasDirOrFile(deviceFilePath))) return null
+  if (!(await utils.hasDirOrFile(presetsFilePath))) return null
   return JSON.parse(
-    await utils.fsPromises.readFile(deviceFilePath, { encoding: "utf-8" })
+    await utils.fsPromises.readFile(presetsFilePath, { encoding: "utf-8" })
   ) as DeviceListsType
 }
 

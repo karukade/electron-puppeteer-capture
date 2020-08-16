@@ -71,7 +71,6 @@ const BasicAuthEditor: React.FC<BasicAuthEditorProps> = ({
   onDone,
 }) => {
   const storedAuthDomains = useSelector(basicAuthListsKeys)
-  console.log(storedAuthDomains)
   return (
     <Form initialValues={initialValue} onFinish={onDone as any}>
       <Row

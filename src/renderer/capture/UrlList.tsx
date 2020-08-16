@@ -37,7 +37,6 @@ const UrlList: React.FC<{ list: ArrayedUrlListType }> = ({ list }) => {
       window.removeEventListener("resize", set)
     }
   }, [])
-  console.log(list)
   return (
     <div ref={wrapper}>
       {dimension && (

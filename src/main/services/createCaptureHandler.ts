@@ -122,13 +122,15 @@ const createCaptureStart = ({
   { onStart, onCaptured, onTitle, onDone }: CallBackType
 ) => {
   // windowに全てのロジックを定義するためのスクリプト
-  const logicScript = logics ? generateLogicScriptString(logics) : undefined
+  const logicScript =
+    logics && logics.size ? generateLogicScriptString(logics) : undefined
   // 戻り値はキャンセルされたかどうかのフラグ
   const canceled = await [...urlList].reduce<Promise<boolean>>(
     async (prev, [, { url, index, captureTargets, logic }]) => {
       // 前のタスクがキャンセルされたかどうかを確認
       // trueなら現在のタスクは実行せずreturnする
       const prevCanceled = await prev
+      const hasLogic = logic && logics?.has(logic)
       if (prevCanceled) return prevCanceled
 
       onStart(index)
@@ -137,9 +139,16 @@ const createCaptureStart = ({
         info: { url, index, captureTargets },
         onTitle,
         deviceList,
-        logic,
-        logicScript,
         basicAuthLists,
+        ...(hasLogic
+          ? {
+              logic,
+              logicScript,
+            }
+          : {
+              logic,
+              logicScript: undefined,
+            }),
       })
 
       const { canceled, result } = await takeCapture(capture, captureArg)

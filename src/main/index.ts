@@ -6,6 +6,7 @@ import MainWindow from "./MainWindow"
 import { addIpcHandlers } from "./ipc"
 import { addErrorHandler } from "./errHandler"
 import configureStore from "../shared/store/configureStore"
+import { writeAppDataToFile } from "./services/writeAppData"
 
 // store actions
 import { setPlatForm } from "../shared/actions/env"
@@ -20,6 +21,7 @@ if (utils.isDevelopment) {
 // quit application when all windows are closed
 app.on("window-all-closed", () => {
   // on macOS it is common for applications to stay open until the user explicitly quits
+  writeAppDataToFile(store)
   if (process.platform !== "darwin") app.quit()
 })
 
@@ -39,7 +41,7 @@ app.on("ready", async () => {
         extensions.map((name) =>
           installer.default(installer[name], forceDownload)
         )
-      ).catch(console.log)
+      ).catch(() => null)
     }
     await installExtensions()
   }
