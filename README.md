@@ -16,7 +16,26 @@ URLを記載したエクセルのリストを読み込んで、ページをキ�
 
 ## 試し方
 electronのパッケージ内で、puppeteerからchromiumを起動しようとするとパスが解決できずエラーになるので、chromiumのzipだけをelectronのパッケージにいれておいて初回起動時にelectronの``app.getPath("userData")``に解凍する。（開発時はプロジェクトルートの``dev-user-data``に解凍される）<br>
-ビルド後のパッケージの起動オプションに``--userData=/path/to/userData``を指定することで、任意のフォルダにchromiumを解凍できる。
+ビルド後のパッケージの起動オプションに``--userData=/path/to/userData``を指定することで、任意のフォルダにchromiumを解凍できる。<br>
+
+**⚠️自前moduleをGitHub Packagesから利用しているので、``.npmrc``にgithubのpersonal access tokenを記述するかnpm.pkg.github.comにpersonal access tokenで``npm login``する必要があります**<br>
+
+[参考](https://docs.github.com/ja/packages/using-github-packages-with-your-projects-ecosystem/configuring-npm-for-use-with-github-packages#authenticating-to-github-packages)<br>
+
+.npmrcを使う場合
+```
+//npm.pkg.github.com/:_authToken=TOKEN
+```
+
+npm loginする場合
+
+```bash
+npm login --registry=https://npm.pkg.github.com
+> Username: USERNAME
+> Password: TOKEN
+> Email: PUBLIC-EMAIL-ADDRESS
+```
+
 ```bash
 # インストール
 yarn
